@@ -25,6 +25,7 @@ class Admin
             "elastic-posts"
         );
 
+        $this->createBoxSection();
         $this->createIndexSection();
         $this->createPostTypesSection();
     }
@@ -41,6 +42,23 @@ class Admin
             "index" => array(
                 "type" => "text",
                 "label" => "Index Name"
+            )
+        );
+        $this->createFields($fields);
+    }
+
+    protected function createBoxSection()
+    {
+        $this->postTypesSection = new \WPUtilities\Admin\Settings\Section(
+            $this->menuPage,
+            "box",
+            "Box"
+        );
+
+        $fields = array(
+            "box" => array(
+                "type" => "text",
+                "label" => "Which box to connect to?"
             )
         );
         $this->createFields($fields);

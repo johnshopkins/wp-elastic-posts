@@ -6,8 +6,6 @@ Author: Jen Wachter
 Version: 0.1
 */
 
-use Secrets\Secret;
-
 /**
  * actions
  */
@@ -22,35 +20,12 @@ add_action("wp_trash_post", "elasticFields_removeOne"); // trash turned on
 // // imports all fields (for testing)
 // add_action("admin_init", "elasticFields_putAll");
 
+
+
 // Create admin pages
 add_action("wp_loaded", function () {
 	new \ElasticPosts\Admin();
 });
-
-
-/**
- * Return a configured instance of Elasticsearch
- * @return object \elasticfields\classes\Elasticsearch
- */
-function elasticFields_getElasticsearch()
-{
-	$secrets = Secret::get("qbox", "professor_x");
-
-	$params = array(
-		"hosts" => array($secrets->connections->https->url),
-		"connectionParams" => array(
-			"auth" => array(
-				$secrets->username,
-				$secrets->password,
-				"Basic"
-			)
-		)
-		// "logLevel" => $loglevel,
-		// "logPath" => $logfile
-	);
-
-	return new \ElasticPosts\Elasticsearch($params);
-}
 
 /**
  * Analyzes $_POST and $_GET to figure out
@@ -60,7 +35,7 @@ function elasticFields_getElasticsearch()
  */
 function elasticFields_postSaved($id)
 {
-	$es = elasticFields_getElasticsearch();
+	$es = new \ElasticPosts\Elasticsearch();
 
 	if (empty($es)) {
 		return;
@@ -117,7 +92,7 @@ function elasticFields_postSaved($id)
  */
 function elasticFields_removeOne($id)
 {
-	$es = elasticFields_getElasticsearch();
+	$es = new \ElasticPosts\Elasticsearch();
 	if (empty($es)) {
 		return;
 	}
@@ -132,7 +107,7 @@ function elasticFields_removeOne($id)
  */
 function elasticFields_putAll()
 {
-	$es = elasticFields_getElasticsearch();
+	$es = new \ElasticPosts\Elasticsearch();
 	
 	if (empty($es)) {
 		return;

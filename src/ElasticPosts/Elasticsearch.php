@@ -2,22 +2,16 @@
 
 namespace ElasticPosts;
 
+use Secrets\Secret;
+
 class Elasticsearch
 {
 	protected $client;
 	protected $post_types;
 	protected $wputils;
 
-	/**
-	 * __construct
-	 * @param array  $config  Elastic search client configuration. See:
-	 *                        http://www.elasticsearch.org/guide/en/elasticsearch/client/php-api/current/_configuration.html
-	 */
 	public function __construct($config)
 	{
-		$this->client = new \Elasticsearch\Client($config);
-
-		// formerlly settings
 		$this->post_types = array_keys(get_option("elastic-posts_post_types_post_types"));
 		$this->index = get_option("elastic-posts_index_index");
 		
@@ -27,6 +21,28 @@ class Elasticsearch
 		}
 
 		$this->wputils = new WordPressUtils();
+		$this->client = new \Elasticsearch\Client($this->getConfig());
+	}
+
+	/**
+	 * Get the config for the elasticsearch box
+	 * @return [type] [description]
+	 */
+	protected function getConfig()
+	{
+		$box = get_option("elastic-posts_box_box");
+		$secrets = Secret::get("qbox", $box);
+
+		return array(
+			"hosts" => array($secrets->connections->https->url),
+			"connectionParams" => array(
+				"auth" => array(
+					$secrets->username,
+					$secrets->password,
+					"Basic"
+				)
+			)
+		);
 	}
 
 	/**
