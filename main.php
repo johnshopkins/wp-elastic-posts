@@ -37,10 +37,6 @@ function elasticFields_postSaved($id)
 {
 	$es = new \ElasticPosts\Elasticsearch();
 
-	if (empty($es)) {
-		return;
-	}
-
 	// single post status changed from post.php or edit.php
 	if (!empty($_POST)) {
 
@@ -93,9 +89,6 @@ function elasticFields_postSaved($id)
 function elasticFields_removeOne($id)
 {
 	$es = new \ElasticPosts\Elasticsearch();
-	if (empty($es)) {
-		return;
-	}
 	$es->remove($id);
 }
 
@@ -108,9 +101,5 @@ function elasticFields_removeOne($id)
 function elasticFields_putAll()
 {
 	$es = new \ElasticPosts\Elasticsearch();
-	
-	if (empty($es)) {
-		return;
-	}
 	$es->putAll();
 }
