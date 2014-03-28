@@ -1,8 +1,8 @@
 <?php
 
-namespace elasticfields\PostTypes;
+namespace ElasticPosts\PostTypes;
 
-class FieldOfStudy extends Post
+class field_of_study extends Post
 {
 	protected $acfRepeaters = array(
 		"concentrations",

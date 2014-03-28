@@ -1,24 +1,32 @@
 <?php
 
-namespace elasticfields\classes;
+namespace ElasticPosts;
 
 class Elasticsearch
 {
 	protected $client;
-	protected $settings;
+	protected $post_types;
 	protected $wputils;
 
 	/**
 	 * __construct
 	 * @param array  $config  Elastic search client configuration. See:
 	 *                        http://www.elasticsearch.org/guide/en/elasticsearch/client/php-api/current/_configuration.html
-	 * @param object $wputils WordPressUtils object
 	 */
-	public function __construct($config, $settings, $wputils)
+	public function __construct($config)
 	{
 		$this->client = new \Elasticsearch\Client($config);
-		$this->settings = $settings;
-		$this->wputils = $wputils;
+
+		// formerlly settings
+		$this->post_types = array_keys(get_option("elastic-posts_post_types_post_types"));
+		$this->index = get_option("elastic-posts_index_index");
+		
+		if (!$this->post_types) {
+			// @log and email devs
+			// die();
+		}
+
+		$this->wputils = new WordPressUtils();
 	}
 
 	/**
@@ -46,7 +54,7 @@ class Elasticsearch
 		$settings = $this->settings[$post->post_type];
 		
 		$params = array(
-			"index" => $settings["index"],
+			"index" => $this->index,
 			"type" => $settings["type"],
 			"id" => $id,
 			"body" => $settings["cleaner"]->clean($post)
@@ -77,13 +85,11 @@ class Elasticsearch
 		$post = $this->wputils->getPost($id, false);
 
 		// this post type was never saved
-		if (!isset($this->settings[$post->post_type])) return false;
-
-		$settings = $this->settings[$post->post_type];
+		if (!in_array($post->post_type, $this->post_types)) return false;
 
 		$params = array(
-			"index" => $settings["index"],
-			"type" => $settings["type"],
+			"index" => $this->index,
+			"type" => $post->post_type,
 			"id" => $id
 		);
 
@@ -114,24 +120,23 @@ class Elasticsearch
 	{
 		$responses = array();
 
-		// get posts by type
-		$post_types = array_keys($this->settings);
 		$posts = array();
-		foreach ($post_types as $type) {
+		foreach ($this->post_types as $type) {
 			$posts[$type] = $this->wputils->getPosts($type);
 		}
 
 		// put posts in elasticsearch
 		foreach ($posts as $type => $posts) {
 
-			$settings = $this->settings[$type];
+			$cleanerName = "\\ElasticPosts\\PostTypes\\{$type}";
+			$cleaner = new $cleanerName();
 
 			foreach ($posts as $post) {
 				$params = array(
-					"index" => $settings["index"],
-					"type" => $settings["type"],
+					"index" => $this->index,
+					"type" => $type,
 					"id" => $post->ID,
-					"body" => $settings["cleaner"]->clean($post)
+					"body" => $cleaner->clean($post)
 				);
 
 				$responses[] = $this->client->index($params);

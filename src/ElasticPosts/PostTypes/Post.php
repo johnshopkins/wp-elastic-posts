@@ -1,8 +1,8 @@
 <?php
 
-namespace elasticfields\PostTypes;
+namespace ElasticPosts\PostTypes;
 
-class Post
+class post
 {
 	public function clean($post)
 	{

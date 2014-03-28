@@ -1,6 +1,6 @@
 <?php
 
-namespace elasticfields\classes;
+namespace ElasticPosts;
 
 class WordPressUtils
 {

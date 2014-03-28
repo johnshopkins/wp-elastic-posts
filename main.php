@@ -6,6 +6,7 @@ Author: Jen Wachter
 Version: 0.1
 */
 
+use Secrets\Secret;
 
 /**
  * actions
@@ -18,43 +19,13 @@ add_action("save_post", "elasticFields_postSaved");
 add_action("delete_post", "elasticFields_removeOne"); // trash not turned on
 add_action("wp_trash_post", "elasticFields_removeOne"); // trash turned on
 
-// imports all fields (for testing)
+// // imports all fields (for testing)
 // add_action("admin_init", "elasticFields_putAll");
 
-
-
-/**
- * Get the connection settings for elasticsearch
- * @return array
- */
-function elasticFields_getSettings()
-{
-	$settings = array();
-
-	if (ENV === "production") {
-		$settings = array(
-			"host" => "54.204.27.221:9200",
-			"logfile" => "/var/log/httpd/jhu.edu_error.log",
-			"loglevel" => \Monolog\Logger::ERROR
-		);
-	
-	} elseif (ENV === "staging") {
-		$settings = array(
-			"host" => "54.204.27.221:9200",
-			"logfile" => "/var/log/httpd/staging.jhu.edu_error.log",
-			"loglevel" => \Monolog\Logger::ERROR
-		);
-
-	} elseif (ENV === "local") {
-		$settings = array(
-			"host" => "192.168.12.37:9200",
-			"logfile" => "/var/log/httpd/local.jhu.edu_error.log",
-			"loglevel" => \Monolog\Logger::INFO
-		);
-	}
-
-	return $settings;
-}
+// Create admin pages
+add_action("wp_loaded", function () {
+	new \ElasticPosts\Admin();
+});
 
 
 /**
@@ -63,36 +34,22 @@ function elasticFields_getSettings()
  */
 function elasticFields_getElasticsearch()
 {
-	$settings = elasticFields_getSettings();
-
-	if (empty($settings)) {
-		return;
-	}
-	
-	extract($settings);
-
-	$wputils = new \elasticfields\classes\WordPressUtils();
+	$secrets = Secret::get("qbox", "professor_x");
 
 	$params = array(
-		"hosts" => array($host),
-		"logLevel" => $loglevel,
-		"logPath" => $logfile
-	);
-
-	$settings = array(
-		"field_of_study" => array(
-			"index" => "fieldsofstudy",
-			"type" => "field",
-			"cleaner" => new \elasticfields\PostTypes\FieldOfStudy()
-		),
-		"post" => array(
-			"index" => "posts",
-			"type" => "post",
-			"cleaner" => new \elasticfields\PostTypes\Post()
+		"hosts" => array($secrets->connections->https->url),
+		"connectionParams" => array(
+			"auth" => array(
+				$secrets->username,
+				$secrets->password,
+				"Basic"
+			)
 		)
+		// "logLevel" => $loglevel,
+		// "logPath" => $logfile
 	);
 
-	return new \elasticfields\classes\Elasticsearch($params, $settings, $wputils);
+	return new \ElasticPosts\Elasticsearch($params);
 }
 
 /**
@@ -176,6 +133,7 @@ function elasticFields_removeOne($id)
 function elasticFields_putAll()
 {
 	$es = elasticFields_getElasticsearch();
+	
 	if (empty($es)) {
 		return;
 	}
