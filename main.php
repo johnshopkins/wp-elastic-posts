@@ -6,9 +6,11 @@ Author: Jen Wachter
 Version: 0.1
 */
 
-/**
- * actions
- */
+
+// Create admin pages
+add_action("wp_loaded", function () {
+	new \ElasticPosts\Admin();
+});
 
 // whenever a post is changed (includes restoring from trash)
 add_action("save_post", "elasticFields_postSaved");
@@ -18,14 +20,14 @@ add_action("delete_post", "elasticFields_removeOne"); // trash not turned on
 add_action("wp_trash_post", "elasticFields_removeOne"); // trash turned on
 
 // // imports all fields (for testing)
-// add_action("admin_init", "elasticFields_putAll");
+// add_action("admin_init", function () {
+// 	$es = new \ElasticPosts\Elasticsearch();
+// 	$es->putAll();
+// });
 
 
 
-// Create admin pages
-add_action("wp_loaded", function () {
-	new \ElasticPosts\Admin();
-});
+
 
 /**
  * Analyzes $_POST and $_GET to figure out
@@ -90,16 +92,4 @@ function elasticFields_removeOne($id)
 {
 	$es = new \ElasticPosts\Elasticsearch();
 	$es->remove($id);
-}
-
-/**
- * Puts data from all published fields
- * of study into elasticsearch
- * @param  integer $id Post ID
- * @return array Response from elasticsearch
- */
-function elasticFields_putAll()
-{
-	$es = new \ElasticPosts\Elasticsearch();
-	$es->putAll();
 }

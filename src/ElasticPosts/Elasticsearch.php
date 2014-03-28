@@ -10,7 +10,7 @@ class Elasticsearch
 	protected $post_types;
 	protected $wputils;
 
-	public function __construct($config)
+	public function __construct()
 	{
 		$this->post_types = array_keys(get_option("elastic-posts_post_types_post_types"));
 		$this->index = get_option("elastic-posts_index_index");
@@ -26,7 +26,7 @@ class Elasticsearch
 
 	/**
 	 * Get the config for the elasticsearch box
-	 * @return [type] [description]
+	 * @return array
 	 */
 	protected function getConfig()
 	{
@@ -57,23 +57,23 @@ class Elasticsearch
 		$post = $this->wputils->getPost($id);
 
 		// make sure an unpublished post doesn't sneak
-		// through (for example, like when a post is restored
+		// through (for example, when a post is restored
 		// from the trash, we won't know if it was a published
 		// post until this point)
 		if ($post->post_status !== "publish") {
 			return;
 		}
 
-		// this post type is not being saved
-		if (!isset($this->settings[$post->post_type])) return false;
+		// this post type shoud not be saved
+		if (!in_array($post->post_type, $this->post_types)) return false;
 
-		$settings = $this->settings[$post->post_type];
+		$cleaner = $this->getCleaner($post->post_type);
 		
 		$params = array(
 			"index" => $this->index,
-			"type" => $settings["type"],
+			"type" => $post->post_type,
 			"id" => $id,
-			"body" => $settings["cleaner"]->clean($post)
+			"body" => $cleaner->clean($post)
 		);
 
 		return $this->client->index($params);
@@ -144,8 +144,7 @@ class Elasticsearch
 		// put posts in elasticsearch
 		foreach ($posts as $type => $posts) {
 
-			$cleanerName = "\\ElasticPosts\\PostTypes\\{$type}";
-			$cleaner = new $cleanerName();
+			$cleaner = $this->getCleaner($type);
 
 			foreach ($posts as $post) {
 				$params = array(
@@ -160,6 +159,12 @@ class Elasticsearch
 		}
 
 		return $responses;
+	}
+
+	protected function getCleaner($type)
+	{
+		$cleanerName = "\\ElasticPosts\\PostTypes\\{$type}";
+		return new $cleanerName();
 	}
 
 	/**
