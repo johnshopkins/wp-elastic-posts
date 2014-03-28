@@ -1,0 +1,14 @@
+{
+    "name": "johnshopkins/wp-elastic-fields",
+    "type": "wordpress-plugin",
+    "description": "Imports fields of study into elasticsearch.",
+    "require": {
+        "elasticsearch/elasticsearch": "0.4.*",
+        "composer/installers": "~1.0"
+    },
+    "autoload": {
+        "psr-0": {
+            "ElasticPosts": "src/"
+        }
+    }
+}
