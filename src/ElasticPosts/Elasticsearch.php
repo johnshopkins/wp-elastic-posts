@@ -82,7 +82,7 @@ class Elasticsearch
 		// through (for example, when a post is restored
 		// from the trash, we won't know if it was a published
 		// post until this point)
-		if ($post->post_status !== "publish") {
+		if ($post->post_type != "attachment" && $post->post_status !== "publish") {
 			return;
 		}
 

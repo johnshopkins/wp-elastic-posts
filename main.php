@@ -19,6 +19,12 @@ add_action("save_post", "elasticFields_postSaved");
 add_action("delete_post", "elasticFields_removeOne"); // trash not turned on
 add_action("wp_trash_post", "elasticFields_removeOne"); // trash turned on
 
+// attachments
+add_action("add_attachment", "elasticFields_attachmentSaved");
+add_action("edit_attachment", "elasticFields_attachmentSaved");
+add_action("delete_attachment", "elasticFields_removeOne");
+
+
 // // imports all fields (for testing)
 // add_action("admin_init", function () {
 // 	$es = new \ElasticPosts\Elasticsearch();
@@ -27,6 +33,11 @@ add_action("wp_trash_post", "elasticFields_removeOne"); // trash turned on
 
 
 
+function elasticFields_attachmentSaved($id)
+{
+	$es = new \ElasticPosts\Elasticsearch();
+	$es->put($id);
+}
 
 
 /**
