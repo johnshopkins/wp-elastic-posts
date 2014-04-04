@@ -32,8 +32,8 @@ class Elasticsearch
 
 	protected function setupVars()
 	{
-		$this->post_types = array_keys($this->wordpress->get_option("elastic-posts_post_types_post_types"));
-		$this->index = $this->wordpress->get_option("elastic-posts_index_index");
+		$this->post_types = array_keys($this->wordpress->get_option("elastic-posts_settings_post_types"));
+		$this->index = $this->wordpress->get_option("elastic-posts_settings_index");
 		$this->apiBase = "http://" . ENV . ".jhu.edu/api";
 
 		if (!$this->post_types) {
@@ -51,7 +51,7 @@ class Elasticsearch
 	 */
 	protected function getConfig()
 	{
-		$box = $this->wordpress->get_option("elastic-posts_box_box");
+		$box = $this->wordpress->get_option("elastic-posts_settings_box");
 		$secrets = Secret::get("qbox", $box);
 
 		return array(

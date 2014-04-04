@@ -25,54 +25,32 @@ class Admin
             "elastic-posts"
         );
 
-        $this->createBoxSection();
-        $this->createIndexSection();
-        $this->createPostTypesSection();
+        $this->createSettingsSection();
     }
 
-    protected function createIndexSection()
+    protected function createSettingsSection()
     {
         $this->postTypesSection = new \WPUtilities\Admin\Settings\Section(
             $this->menuPage,
-            "index",
-            "Index"
-        );
-
-        $fields = array(
-            "index" => array(
-                "type" => "text",
-                "label" => "Index Name"
-            )
-        );
-        $this->createFields($fields);
-    }
-
-    protected function createBoxSection()
-    {
-        $this->postTypesSection = new \WPUtilities\Admin\Settings\Section(
-            $this->menuPage,
-            "box",
-            "Box"
+            "settings",
+            "Settings"
         );
 
         $fields = array(
             "box" => array(
                 "type" => "text",
                 "label" => "Which box to connect to?"
+            ),
+            "index" => array(
+                "type" => "text",
+                "label" => "Index Name"
+            ),
+            "post_types" => array(
+                "label" => "Post types to import",
+                "fields" => $this->getPostTypeFields()
             )
         );
-        $this->createFields($fields);
-    }
 
-    protected function createPostTypesSection()
-    {
-        $this->postTypesSection = new \WPUtilities\Admin\Settings\Section(
-            $this->menuPage,
-            "post_types",
-            "Post types in import"
-        );
-
-        $fields = $this->getPostTypeFields();
         $this->createFields($fields);
     }
 
@@ -90,13 +68,7 @@ class Admin
             );
         }
 
-        return array(
-
-            "post_types" => array(
-                "label" => "Post types to import",
-                "fields" => $fields
-            )
-        );
+        return $fields;
     }
 
     protected function createFields($fields)
