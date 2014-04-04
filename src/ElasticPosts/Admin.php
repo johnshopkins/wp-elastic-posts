@@ -78,7 +78,7 @@ class Admin
 
     protected function getPostTypeFields()
     {
-        $posttypes = $this->wordpress->get_post_types(array("publicly_queryable" => true), "objects");
+        $posttypes = $this->wordpress->get_post_types(array("public" => true), "objects");
 
         $fields = array();
 
