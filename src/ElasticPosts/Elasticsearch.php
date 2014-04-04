@@ -76,7 +76,13 @@ class Elasticsearch
 	{
 		$id = $this->getTrueId($id);
 
-		$post = $this->httpEngine->get("{$this->apiBase}/{$id}", array("clear_cache" => true))->getBody()->data;
+		$params = array(
+			// get changes
+			"clear_cache" => true,
+			// post may have been a draft
+			"status" => "any"
+		);
+		$post = $this->httpEngine->get("{$this->apiBase}/{$id}", $params)->getBody()->data;
 
 		// make sure an unpublished post doesn't sneak
 		// through (for example, when a post is restored
@@ -88,7 +94,7 @@ class Elasticsearch
 
 		// this post type shoud not be saved
 		if (!in_array($post->post_type, $this->post_types)) return false;
-		
+
 		$params = array(
 			"index" => $this->index,
 			"type" => $post->post_type,
@@ -120,6 +126,9 @@ class Elasticsearch
 		$id = $this->getTrueId($id);
 		$post = $this->httpEngine->get("{$this->apiBase}/{$id}", array("clear_cache" => true))->getBody()->data;
 
+		// if the post is not published
+		if (!$post) return false;
+
 		// this post type was never saved
 		if (!in_array($post->post_type, $this->post_types)) return false;
 
@@ -136,7 +145,7 @@ class Elasticsearch
 		} else {
 			return false;
 		}
-		
+
 	}
 
 	public function remove($ids)
@@ -184,6 +193,7 @@ class Elasticsearch
 
 	protected function removeUselessWpStuff($post)
 	{
+		unset($post->ID);
 		unset($post->post_author);
 		unset($post->post_date_gmt);
 		unset($post->post_status);
