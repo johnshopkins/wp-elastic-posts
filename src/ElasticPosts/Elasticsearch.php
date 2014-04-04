@@ -34,7 +34,7 @@ class Elasticsearch
 	{
 		$this->post_types = array_keys($this->wordpress->get_option("elastic-posts_settings_post_types"));
 		$this->index = $this->wordpress->get_option("elastic-posts_settings_index");
-		$this->apiBase = "http://" . ENV . ".jhu.edu/api";
+		$this->apiBase = \WPUtilities\API::getApiBase();
 
 		if (!$this->post_types) {
 			// @log and email devs
