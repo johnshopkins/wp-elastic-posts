@@ -95,6 +95,16 @@ class Elasticsearch
 		// this post type shoud not be saved
 		if (!in_array($post->post_type, $this->post_types)) return false;
 
+		// clean (if there is a cleaner)
+		new Cleaners\field_of_study();
+		$cleanerClass = "\\ElasticPosts\\Cleaners\\{$post->post_type}";
+		echo $cleanerClass;
+		var_dump(class_exists($cleanerClass));
+		die();
+		if (class_exists($cleanerClass)) {
+			$post = $cleanerClass->clean($post);
+		}
+
 		$params = array(
 			"index" => $this->index,
 			"type" => $post->post_type,
@@ -161,34 +171,27 @@ class Elasticsearch
 	 * the WordPress database into elasticsearch
 	 * @return array $response Responses from elasticsearch
 	 */
-	// public function putAll()
-	// {
-	// 	$responses = array();
+	public function putAll()
+	{
+		$responses = array();
 
-	// 	$posts = array();
-	// 	foreach ($this->post_types as $type) {
-	// 		$posts[$type] = $this->wputils->getPosts($type);
-	// 	}
+		$data = array();
+		$types = $this->post_types;
+		$types = array("field_of_study");
 
-	// 	// put posts in elasticsearch
-	// 	foreach ($posts as $type => $posts) {
+		foreach ($types as $type) {
+			$data[$type] = $this->httpEngine->get("{$this->apiBase}/{$type}", array("per_page" => -1, "clear_cache" => true))->getBody()->data;
+		}
 
-	// 		$cleaner = $this->getCleaner($type);
+		// put posts in elasticsearch
+		foreach ($data as $type => $posts) {
+			foreach ($posts as $post) {
+				$responses[] = $this->putOne($post->ID);
+			}
+		}
 
-	// 		foreach ($posts as $post) {
-	// 			$params = array(
-	// 				"index" => $this->index,
-	// 				"type" => $type,
-	// 				"id" => $post->ID,
-	// 				"body" => $cleaner->clean($post)
-	// 			);
-
-	// 			$responses[] = $this->client->index($params);
-	// 		}
-	// 	}
-
-	// 	return $responses;
-	// }
+		return $responses;
+	}
 
 
 	protected function removeUselessWpStuff($post)
