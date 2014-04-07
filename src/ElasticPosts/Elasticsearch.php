@@ -96,13 +96,11 @@ class Elasticsearch
 		if (!in_array($post->post_type, $this->post_types)) return false;
 
 		// clean (if there is a cleaner)
-		new Cleaners\field_of_study();
-		$cleanerClass = "\\ElasticPosts\\Cleaners\\{$post->post_type}";
-		echo $cleanerClass;
-		var_dump(class_exists($cleanerClass));
-		die();
+		$condensedClass = str_replace("_", "", $post->post_type);
+		$cleanerClass = "\\ElasticPosts\\Cleaners\\{$condensedClass}";
 		if (class_exists($cleanerClass)) {
-			$post = $cleanerClass->clean($post);
+			$cleaner = new $cleanerClass();
+			$post = $cleaner->clean($post);
 		}
 
 		$params = array(
@@ -176,10 +174,8 @@ class Elasticsearch
 		$responses = array();
 
 		$data = array();
-		$types = $this->post_types;
-		$types = array("field_of_study");
 
-		foreach ($types as $type) {
+		foreach ($this->post_types as $type) {
 			$data[$type] = $this->httpEngine->get("{$this->apiBase}/{$type}", array("per_page" => -1, "clear_cache" => true))->getBody()->data;
 		}
 
