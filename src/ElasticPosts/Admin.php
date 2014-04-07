@@ -30,12 +30,6 @@ class Admin
 
     protected function createSettingsSection()
     {
-        $this->postTypesSection = new \WPUtilities\Admin\Settings\Section(
-            $this->menuPage,
-            "settings",
-            "Settings"
-        );
-
         $fields = array(
             "box" => array(
                 "type" => "text",
@@ -51,7 +45,12 @@ class Admin
             )
         );
 
-        $this->createFields($fields);
+        $this->postTypesSection = new \WPUtilities\Admin\Settings\Section(
+            $this->menuPage,
+            "settings",
+            "Settings",
+            $fields
+        );
     }
 
     protected function getPostTypeFields()
@@ -71,34 +70,4 @@ class Admin
         return $fields;
     }
 
-    protected function createFields($fields)
-    {
-        foreach ($fields as $machinename => $details) {
-
-            $validation = isset($details["validation"]) ? $details["validation"] : null;
-
-            // this field has subfields
-            if (isset($details["fields"])) {
-                new \WPUtilities\Admin\Settings\FieldGroup(
-                    $machinename,
-                    $details["label"],
-                    $details["fields"],
-                    $this->menuPage,
-                    $this->postTypesSection,
-                    $validation
-                );
-            } else {
-                $default = isset($details["default"]) ? $details["default"] : null;
-                new \WPUtilities\Admin\Settings\Field(
-                    $details["type"],
-                    $machinename,
-                    $details["label"],
-                    $default,
-                    $this->menuPage,
-                    $this->postTypesSection,
-                    $validation
-                );
-            }
-        }
-    }
 }
