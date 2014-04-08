@@ -2,14 +2,19 @@
 
 namespace ElasticPosts\Cleaners;
 
-class fieldofstudy
+class fieldofstudy extends Base
 {
     public function clean($post)
     {
-        foreach ($post->meta as $key => $value) {
+        $post = parent::clean($post);
+        $post = $this->assignDescription($post, "description");
+        $post = $this->assignSummary($post, "summary");
+        
+        // remove *_import fields
+        foreach ($post as $key => $value) {
             $keyLength = strlen($key);
             if (substr($key, $keyLength - 7) == "_import") {
-                unset ($post->meta->$key);
+                unset ($post->$key);
             }
         }
 
