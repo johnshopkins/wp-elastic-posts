@@ -83,20 +83,21 @@ class Elasticsearch
 			"status" => "any"
 		);
 		$post = $this->httpEngine->get("{$this->apiBase}/{$id}", $params)->getBody()->data;
+		$type = $post->post_type;
 
 		// make sure an unpublished post doesn't sneak
 		// through (for example, when a post is restored
 		// from the trash, we won't know if it was a published
 		// post until this point)
-		if ($post->post_type != "attachment" && $post->post_status !== "publish") {
+		if ($type != "attachment" && $post->post_status !== "publish") {
 			return;
 		}
 
 		// this post type shoud not be saved
-		if (!in_array($post->post_type, $this->post_types)) return false;
+		if (!in_array($type, $this->post_types)) return false;
 
-		// clean (if there is a cleaner)
-		$condensedClass = str_replace("_", "", $post->post_type);
+
+		$condensedClass = str_replace("_", "", $type);
 		$cleanerClass = "\\ElasticPosts\\Cleaners\\{$condensedClass}";
 		if (class_exists($cleanerClass)) {
 			$cleaner = new $cleanerClass();
@@ -105,7 +106,7 @@ class Elasticsearch
 
 		$params = array(
 			"index" => $this->index,
-			"type" => $post->post_type,
+			"type" => $type,
 			"id" => $id,
 			"body" => $this->removeUselessWpStuff($post)
 		);
