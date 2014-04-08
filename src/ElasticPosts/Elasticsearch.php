@@ -99,16 +99,18 @@ class Elasticsearch
 
 		$condensedClass = str_replace("_", "", $type);
 		$cleanerClass = "\\ElasticPosts\\Cleaners\\{$condensedClass}";
-		if (class_exists($cleanerClass)) {
-			$cleaner = new $cleanerClass();
-			$post = $cleaner->clean($post);
+		if (!class_exists($cleanerClass)) {
+			$cleanerClass = "\\ElasticPosts\\Cleaners\\Base";
 		}
+
+		$cleaner = new $cleanerClass();
+		$post = $cleaner->clean($post);
 
 		$params = array(
 			"index" => $this->index,
 			"type" => $type,
 			"id" => $id,
-			"body" => $this->removeUselessWpStuff($post)
+			"body" => $post
 		);
 
 		return $this->client->index($params);
