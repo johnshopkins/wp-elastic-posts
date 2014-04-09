@@ -9,6 +9,7 @@ class fact extends Base
         $post = parent::clean($post);
         $post = $this->assignDescription($post, null);
         $post = $this->assignSummary($post, null);
+        $post = $this->removeUselessWpStuff($post);
         return $post;
     }
 }

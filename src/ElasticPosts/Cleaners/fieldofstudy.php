@@ -9,6 +9,7 @@ class fieldofstudy extends Base
         $post = parent::clean($post);
         $post = $this->assignDescription($post, "description");
         $post = $this->assignSummary($post, "summary");
+        $post = $this->removeUselessWpStuff($post);
         
         // remove *_import fields
         foreach ($post as $key => $value) {

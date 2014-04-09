@@ -9,7 +9,6 @@ class Base
         $post = $this->extractMeta($post);
         $post = $this->assignTitle($post);
         $post = $this->assignDate($post);
-        $post = $this->removeUselessWpStuff($post);
         return $post;
     }
 

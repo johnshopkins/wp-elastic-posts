@@ -9,6 +9,7 @@ class block extends Base
         $post = parent::clean($post);
         $post = $this->assignDescription($post, "long_body");
         $post = $this->assignSummary($post, "short_body");
+        $post = $this->removeUselessWpStuff($post);
         return $post;
     }
 }

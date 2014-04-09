@@ -9,6 +9,7 @@ class attachment extends Base
         $post = parent::clean($post);
         $post = $this->assignDescription($post);
         $post = $this->assignSummary($post);
+        $post = $this->removeUselessWpStuff($post);
 
         return $post;
     }

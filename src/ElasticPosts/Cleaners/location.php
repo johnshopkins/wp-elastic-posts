@@ -9,6 +9,7 @@ class location extends Base
         $post = parent::clean($post);
         $post = $this->assignDescription($post, "description");
         $post = $this->assignSummary($post, null);
+        $post = $this->removeUselessWpStuff($post);
         return $post;
     }
 }

@@ -9,6 +9,7 @@ class quote extends Base
         $post = parent::clean($post);
         $post = $this->assignDescription($post, "quote");
         $post = $this->assignSummary($post, null);
+        $post = $this->removeUselessWpStuff($post);
         return $post;
     }
 }
