@@ -135,7 +135,7 @@ class Elasticsearch
 	public function removeOne($id)
 	{
 		$id = $this->getTrueId($id);
-		$post = $this->httpEngine->get("{$this->apiBase}/{$id}", array("clear_cache" => true))->getBody()->data;
+		$post = $this->httpEngine->get("{$this->apiBase}/{$id}", array("clear_cache" => true, "status" => "any"))->getBody()->data;
 
 		// if the post is not published
 		if (!$post) return false;
