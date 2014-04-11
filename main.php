@@ -24,6 +24,19 @@ add_action("add_attachment", "elasticFields_attachmentSaved");
 add_action("edit_attachment", "elasticFields_attachmentSaved");
 add_action("delete_attachment", "elasticFields_removeOne");
 
+// reindex button in admin
+add_action("admin_post_wp_elastic_posts_reindex", function ()
+{
+	$root = dirname(dirname(dirname(dirname(__DIR__))));
+	$es = new \ElasticPosts\Elasticsearch(array(
+		"settings_directory" => $root . "/config/elasticsearch/jhuedu"
+	));
+
+	$es->reindex();
+
+	$redirect = admin_url("options-general.php?page=elastic-posts");
+	header("Location: {$redirect}");
+});
 
 // // imports all fields (for testing)
 // add_action("admin_init", function () {
