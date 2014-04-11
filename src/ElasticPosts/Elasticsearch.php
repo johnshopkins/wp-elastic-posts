@@ -165,34 +165,153 @@ class Elasticsearch
 	 * the WordPress database into elasticsearch
 	 * @return array $response Responses from elasticsearch
 	 */
-	// public function putAll()
-	// {
-	// 	$responses = array();
+	public function putAll()
+	{
+		$responses = array();
 
-	// 	$posts = array();
-	// 	foreach ($this->post_types as $type) {
-	// 		$posts[$type] = $this->wputils->getPosts($type);
-	// 	}
+		$posts = array();
+		foreach ($this->post_types as $type) {
+			$posts[$type] = $this->wputils->getPosts($type);
+		}
 
-	// 	// put posts in elasticsearch
-	// 	foreach ($posts as $type => $posts) {
+		// put posts in elasticsearch
+		foreach ($posts as $type => $posts) {
 
-	// 		$cleaner = $this->getCleaner($type);
+			$cleaner = $this->getCleaner($type);
 
-	// 		foreach ($posts as $post) {
-	// 			$params = array(
-	// 				"index" => $this->index,
-	// 				"type" => $type,
-	// 				"id" => $post->ID,
-	// 				"body" => $cleaner->clean($post)
-	// 			);
+			foreach ($posts as $post) {
+				$params = array(
+					"index" => $this->index,
+					"type" => $type,
+					"id" => $post->ID,
+					"body" => $cleaner->clean($post)
+				);
 
-	// 			$responses[] = $this->client->index($params);
-	// 		}
-	// 	}
+				$responses[] = $this->client->index($params);
+			}
+		}
 
-	// 	return $responses;
-	// }
+		return $responses;
+	}
+
+
+	/**
+	 * Get index settings
+	 * http://www.elasticsearch.org/guide/en/elasticsearch/client/php-api/current/_index_operations.html
+	 * @param  string $index Name of index to get settings for
+	 * @return array 
+	 */
+	public function getSettingsForIndex($index)
+	{
+		return $this->client->indices()->getSettings(array("index" => $index));
+	}
+
+
+	/**
+	 * Get existing indexes associated with an alias
+	 * @param  string $alias Alias name
+	 * @return array
+	 */
+	public function getIndexesForAlias($alias)
+	{
+		$index = $this->getSettingsForIndex($alias);
+		
+		if (empty($index) || !is_array($index)) {
+			return array();
+		}
+
+		return array_keys($index);
+	}
+
+
+	/**
+	 * Update index aliases
+	 *
+	 * http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/indices-aliases.html
+	 * http://www.elasticsearch.org/guide/en/elasticsearch/client/php-api/current/_namespaces.html
+	 * 
+	 * $changes should look like:
+	 * 
+	 * array(
+	 *     'add' => array(
+	 *         'index' => 'myindex',
+	 *         'alias' => 'myalias'
+	 *     ),
+	 *     'add' => array(
+	 *     
+	 *     ),
+	 *     'remove' => array(
+	 *     
+	 *     )
+	 * )
+	 * 
+	 * @param  [array] $changes see above
+	 * @return 
+	 */
+	public function updateAliases($changes)
+	{
+		$params = array('body' => array(
+		    'actions' => $changes
+		));
+
+		return $this->client->indices()->updateAliases($params);
+	}
+
+
+	/**
+	 * Get existing indexes attached to an alias, clear them,
+	 * and then assign alias to the passed in index
+	 *
+	 * http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/indices-aliases.html
+	 * 
+	 * @param  string $newIndex Name of the new index
+	 * @param  string $alias    Name of the alias to be assigned
+	 * @return
+	 */
+	public function clearAndAssignAlias($newIndex, $alias)
+	{
+		// Get existing indexes attached to 'jhu' alias
+		$existing = $this->getIndexesForAlias($alias);
+
+		// Create remove list to later remove these indices
+		$changes = array();
+		$changes = array_map(function ($index) {
+			return array("remove" => array(
+				"index" => $index,
+				"alias" => $alias
+			));
+		}, $existing);
+
+		// Add jhu alias to new index
+		$changes[] = array("add" => array("index" => $newIndex, "alias" => $alias));
+
+		return $this->updateAliases($changes);
+	}
+
+
+	/**
+	 * Create new index with settings in $this->settings_directory
+	 * @return string Name of the new index (useful for aliasing)
+	 */
+	public function createIndex()
+	{
+		$newIndex = "jhu_" . time();
+		$indexParams = array(
+			"index" => $newIndex,
+			"body" => json_decode(file_get_contents($this->settings_directory . "/settings.json"), true)
+		);
+
+		$mappings = $this->settings_directory . "/mappings";
+
+		$files = array_diff(scandir($mappings), array("..", ".", ".DS_Store"));
+		foreach ($files as $file) {
+		    $indexParams["body"]["mappings"][str_replace(".json", "", $file)] = json_decode(file_get_contents($mappings . "/" . $file), true);
+		}
+
+		$this->client->indices()->create($indexParams);
+
+		return $newIndex;
+	}
 
 
 	protected function removeUselessWpStuff($post)
