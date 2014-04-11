@@ -6,6 +6,8 @@ use Secrets\Secret;
 
 class Elasticsearch
 {
+	protected $settings_directory;
+
 	/**
 	 * WordPress wrapper
 	 * @var object
@@ -17,8 +19,10 @@ class Elasticsearch
 	protected $apiBase;
 	protected $post_types;
 
-	public function __construct()
+	public function __construct($options = array())
 	{
+		$this->settings_directory = $options["settings_directory"];
+
 		// allow for dependency injection (testing)
         $args = func_get_args();
         $args = array_shift($args);
