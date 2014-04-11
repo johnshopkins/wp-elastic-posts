@@ -17,12 +17,18 @@ class Admin
 
     protected function createMenuPage()
     {
+        $extra = '<form method="post" action="' . $this->wordpress->admin_url("admin-post.php") . '">';
+        $extra .= '<input type="hidden" name="action" value="wp_elastic_posts_reindex">';
+        $extra .= '<p class="submit"><input type="submit" name="submit" id="submit" class="button button-primary" value="Reindex" /></p>';
+        $extra .= '</form>';
+
         $this->menuPage = new \WPUtilities\Admin\Settings\SubMenuPage(
             "options-general.php",
             "Elastic Posts Options",
             "Elastic Posts",
             "activate_plugins",
-            "elastic-posts"
+            "elastic-posts",
+            $extra
         );
 
         $this->createSettingsSection();
