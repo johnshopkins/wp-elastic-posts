@@ -9,6 +9,12 @@ class Elasticsearch
 	protected $settings_directory;
 
 	/**
+	 * Indexes already assigned to jhu
+	 * @var array
+	 */
+	protected $existingIndexes = array();
+
+	/**
 	 * WordPress wrapper
 	 * @var object
 	 */
@@ -76,7 +82,7 @@ class Elasticsearch
 	 * @param  integer $id Post ID
 	 * @return array Response from elasticsearch
 	 */
-	public function putOne($id)
+	public function putOne($id, $index = null)
 	{
 		$id = $this->getTrueId($id);
 
@@ -111,7 +117,7 @@ class Elasticsearch
 		$post = $cleaner->clean($post);
 
 		$params = array(
-			"index" => $this->index,
+			"index" => !is_null($index) ? $index : $this->index,
 			"type" => $type,
 			"id" => $id,
 			"body" => $post
@@ -121,11 +127,11 @@ class Elasticsearch
 	}
 
 
-	public function put($ids)
+	public function put($ids, $index = null)
 	{
 		$ids = (array) $ids;
 		foreach ($ids as $id) {
-			$this->putOne($id);
+			$this->putOne($id, $index);
 		}
 	}
 
@@ -176,7 +182,7 @@ class Elasticsearch
 	 * the WordPress database into elasticsearch
 	 * @return array $response Responses from elasticsearch
 	 */
-	public function putAll()
+	public function putAll($index = null)
 	{
 		$responses = array();
 		$data = array();
@@ -188,11 +194,29 @@ class Elasticsearch
 		// put posts in elasticsearch
 		foreach ($data as $type => $posts) {
 			foreach ($posts as $post) {
-				$responses[] = $this->putOne($post->ID);
+				$responses[] = $this->putOne($post->ID, $index);
 			}
 		}
 
 		return $responses;
+	}
+
+	public function reindex()
+	{
+		// create new index
+		$newIndex = $this->createIndex();
+
+		// put data into new index
+		$this->putAll($newIndex);
+
+		// assign new index to alias
+		$alias = get_option("elastic-posts_settings_index");
+		$this->clearAndAssignAlias($newIndex, $alias);
+
+		// delete old index
+		foreach ($this->existingIndexes as $index) {
+			$this->deleteIndex($index);
+		}
 	}
 
 
@@ -204,7 +228,11 @@ class Elasticsearch
 	 */
 	public function getSettingsForIndex($index)
 	{
-		return $this->client->indices()->getSettings(array("index" => $index));
+		try {
+			return $this->client->indices()->getSettings(array("index" => $index));
+		} catch (\Exception $e) {
+			return array();
+		}
 	}
 
 
@@ -272,16 +300,16 @@ class Elasticsearch
 	public function clearAndAssignAlias($newIndex, $alias)
 	{
 		// Get existing indexes attached to 'jhu' alias
-		$existing = $this->getIndexesForAlias($alias);
+		$this->existingIndexes = $this->getIndexesForAlias($alias);
 
 		// Create remove list to later remove these indices
 		$changes = array();
-		$changes = array_map(function ($index) {
+		$changes = array_map(function ($index) use ($alias) {
 			return array("remove" => array(
 				"index" => $index,
 				"alias" => $alias
 			));
-		}, $existing);
+		}, $this->existingIndexes);
 
 		// Add jhu alias to new index
 		$changes[] = array("add" => array("index" => $newIndex, "alias" => $alias));
@@ -312,6 +340,13 @@ class Elasticsearch
 		$this->client->indices()->create($indexParams);
 
 		return $newIndex;
+	}
+
+	public function deleteIndex($index)
+	{
+		return $this->client->indices()->delete(array(
+			"index" => $index
+		));
 	}
 
 
