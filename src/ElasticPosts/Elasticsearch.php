@@ -87,23 +87,34 @@ class Elasticsearch
 			"status" => "any"
 		);
 		$post = $this->httpEngine->get("{$this->apiBase}/{$id}", $params)->getBody()->data;
+		$type = $post->post_type;
 
 		// make sure an unpublished post doesn't sneak
 		// through (for example, when a post is restored
 		// from the trash, we won't know if it was a published
 		// post until this point)
-		if ($post->post_type != "attachment" && $post->post_status !== "publish") {
+		if ($type != "attachment" && $post->post_status !== "publish") {
 			return;
 		}
 
 		// this post type shoud not be saved
-		if (!in_array($post->post_type, $this->post_types)) return false;
+		if (!in_array($type, $this->post_types)) return false;
+
+
+		$condensedClass = str_replace("_", "", $type);
+		$cleanerClass = "\\ElasticPosts\\Cleaners\\{$condensedClass}";
+		if (!class_exists($cleanerClass)) {
+			$cleanerClass = "\\ElasticPosts\\Cleaners\\Base";
+		}
+
+		$cleaner = new $cleanerClass();
+		$post = $cleaner->clean($post);
 
 		$params = array(
 			"index" => $this->index,
-			"type" => $post->post_type,
+			"type" => $type,
 			"id" => $id,
-			"body" => $this->removeUselessWpStuff($post)
+			"body" => $post
 		);
 
 		return $this->client->index($params);
@@ -128,7 +139,7 @@ class Elasticsearch
 	public function removeOne($id)
 	{
 		$id = $this->getTrueId($id);
-		$post = $this->httpEngine->get("{$this->apiBase}/{$id}", array("clear_cache" => true))->getBody()->data;
+		$post = $this->httpEngine->get("{$this->apiBase}/{$id}", array("clear_cache" => true, "status" => "any"))->getBody()->data;
 
 		// if the post is not published
 		if (!$post) return false;
@@ -168,26 +179,16 @@ class Elasticsearch
 	public function putAll()
 	{
 		$responses = array();
+		$data = array();
 
-		$posts = array();
 		foreach ($this->post_types as $type) {
-			$posts[$type] = $this->wputils->getPosts($type);
+			$data[$type] = $this->httpEngine->get("{$this->apiBase}/{$type}", array("per_page" => -1, "clear_cache" => true))->getBody()->data;
 		}
 
 		// put posts in elasticsearch
-		foreach ($posts as $type => $posts) {
-
-			$cleaner = $this->getCleaner($type);
-
+		foreach ($data as $type => $posts) {
 			foreach ($posts as $post) {
-				$params = array(
-					"index" => $this->index,
-					"type" => $type,
-					"id" => $post->ID,
-					"body" => $cleaner->clean($post)
-				);
-
-				$responses[] = $this->client->index($params);
+				$responses[] = $this->putOne($post->ID);
 			}
 		}
 
@@ -312,6 +313,7 @@ class Elasticsearch
 
 		return $newIndex;
 	}
+
 
 
 	protected function removeUselessWpStuff($post)
