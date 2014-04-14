@@ -93,6 +93,12 @@ class Elasticsearch
 			"status" => "any"
 		);
 		$post = $this->httpEngine->get("{$this->apiBase}/{$id}", $params)->getBody()->data;
+
+		// new post initiated (autosave)
+		if (!$post) {
+			return false;
+		}
+
 		$type = $post->post_type;
 
 		// make sure an unpublished post doesn't sneak

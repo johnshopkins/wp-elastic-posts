@@ -70,11 +70,6 @@ function elasticFields_postSaved($id)
 {
 	$es = new \ElasticPosts\Elasticsearch(elasticFields_getOptions());
 
-	// echo "post saved";
-	// print_r($_POST);
-	// print_r($_GET);
-	// die();
-
 	// Post changed from post.php or from Quick Edit on edit.php
 	if (!empty($_POST)) {
 
@@ -103,6 +98,10 @@ function elasticFields_postSaved($id)
 		if ($action == "untrash") {
 			return $es->put($ids);
 		}
+
+	// new post initating, new post inserted
+	} else if ($id) {
+		return $es->put($id);
 	}
 }
 
