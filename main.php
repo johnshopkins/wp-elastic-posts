@@ -35,9 +35,7 @@ add_action("delete_attachment", "elasticFields_removeOne");
 // reindex button in admin
 add_action("admin_post_wp_elastic_posts_reindex", function ()
 {
-	
 	$es = new \ElasticPosts\Elasticsearch(elasticFields_getOptions());
-
 	$es->reindex();
 
 	$redirect = admin_url("options-general.php?page=elastic-posts");
@@ -61,6 +59,10 @@ function elasticFields_attachmentSaved($id)
 /**
  * Analyzes $_POST and $_GET to figure out
  * what to do with the post in question.
+ *
+ * post_saved is triggered when a post is
+ * created, updated, or restored from the trash
+ * 
  * @param  integer $id Post ID
  * @return array Response from elasticsearch
  */
@@ -68,7 +70,12 @@ function elasticFields_postSaved($id)
 {
 	$es = new \ElasticPosts\Elasticsearch(elasticFields_getOptions());
 
-	// single post status changed from post.php or edit.php
+	// echo "post saved";
+	// print_r($_POST);
+	// print_r($_GET);
+	// die();
+
+	// Post changed from post.php or from Quick Edit on edit.php
 	if (!empty($_POST)) {
 
 		if ($_POST["post_status"] !== "publish") {
@@ -77,38 +84,25 @@ function elasticFields_postSaved($id)
 			return $es->put($id);
 		}
 
-	// single post trash (post.php or edit.php), untrash
-	// bulk trash, untrash, and post status updates
-	} else if (!empty($_GET) && isset($_GET["post"]) && isset($_GET["action"])) {
+	// new post added, bulk actions from edit.php, restore from trash
+	// if no action is set, this is a new post initiating
+	} else if (!empty($_GET) && isset($_GET["action"])) {
 
 		$action = $_GET["action"];
-		$post = $_GET["post"];
+		$ids = $_GET["post"];
 
-		// moved to trash
-		if ($action === "trash") {
-			return $es->remove($post);
-		}
-
-		// restored from trash
-		else if ($action === "untrash") {
-			// later in the put() process, we make sure
-			// this post was restored to "publish" before
-			// pushing to elasticsearch
-			return $es->put($post);
-		}
-
-		// bulk edit
-		else if ($action === "edit") {
-
-			if ($_GET["_status"] !== "publish") {
-				return $es->remove($post);
+		if ($action == "edit") {
+			if ($_GET["_status"] != "publish") {
+				return $es->remove($ids);
 
 			} else {
-				return $es->put($post);
+				return $es->put($ids);
 			}
-
 		}
 
+		if ($action == "untrash") {
+			return $es->put($ids);
+		}
 	}
 }
 
@@ -120,5 +114,7 @@ function elasticFields_postSaved($id)
 function elasticFields_removeOne($id)
 {
 	$es = new \ElasticPosts\Elasticsearch(elasticFields_getOptions());
-	$es->remove($id);
+
+	$ids = $_GET["post"];
+	$es->remove($ids);
 }
