@@ -6,6 +6,14 @@ Author: Jen Wachter
 Version: 0.1
 */
 
+function elasticFields_getOptions()
+{
+	$root = dirname(dirname(dirname(dirname(__DIR__))));
+	return array(
+		"settings_directory" => $root . "/config/elasticsearch/jhuedu"
+	);
+}
+
 
 // Create admin pages
 add_action("wp_loaded", function () {
@@ -27,10 +35,8 @@ add_action("delete_attachment", "elasticFields_removeOne");
 // reindex button in admin
 add_action("admin_post_wp_elastic_posts_reindex", function ()
 {
-	$root = dirname(dirname(dirname(dirname(__DIR__))));
-	$es = new \ElasticPosts\Elasticsearch(array(
-		"settings_directory" => $root . "/config/elasticsearch/jhuedu"
-	));
+	
+	$es = new \ElasticPosts\Elasticsearch(elasticFields_getOptions());
 
 	$es->reindex();
 
@@ -45,10 +51,9 @@ add_action("admin_post_wp_elastic_posts_reindex", function ()
 // });
 
 
-
 function elasticFields_attachmentSaved($id)
 {
-	$es = new \ElasticPosts\Elasticsearch();
+	$es = new \ElasticPosts\Elasticsearch(elasticFields_getOptions());
 	$es->put($id);
 }
 
@@ -61,7 +66,7 @@ function elasticFields_attachmentSaved($id)
  */
 function elasticFields_postSaved($id)
 {
-	$es = new \ElasticPosts\Elasticsearch();
+	$es = new \ElasticPosts\Elasticsearch(elasticFields_getOptions());
 
 	// single post status changed from post.php or edit.php
 	if (!empty($_POST)) {
@@ -114,6 +119,6 @@ function elasticFields_postSaved($id)
  */
 function elasticFields_removeOne($id)
 {
-	$es = new \ElasticPosts\Elasticsearch();
+	$es = new \ElasticPosts\Elasticsearch(elasticFields_getOptions());
 	$es->remove($id);
 }
