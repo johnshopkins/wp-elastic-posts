@@ -9,10 +9,6 @@
         },
         {
             "type": "vcs",
-            "url": "git@github.com:johnshopkins/wp-admin-settings.git"
-        },
-        {
-            "type": "vcs",
             "url":  "git@github.com:johnshopkins/secrets.git"
         }
     ],
