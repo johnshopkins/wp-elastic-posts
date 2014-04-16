@@ -6,114 +6,131 @@ Author: Jen Wachter
 Version: 0.1
 */
 
-function elasticFields_getOptions()
+class ElasticPostsMain
 {
-	$root = dirname(dirname(dirname(dirname(__DIR__))));
-	return array(
-		"settings_directory" => $root . "/config/elasticsearch/jhuedu"
-	);
-}
+	protected $logger;
 
+	public function __construct($logger)
+	{
+		$this->logger = $logger;
 
-// Create admin pages
-add_action("wp_loaded", function () {
-	new \ElasticPosts\Admin();
-});
+		// Create admin pages
+		add_action("wp_loaded", function () {
+			new \ElasticPosts\Admin();
+		});
 
-// whenever a post is changed (includes restoring from trash)
-add_action("save_post", "elasticFields_postSaved");
+		// posts
+		add_action("save_post", array($this, "postSaved"));
+		add_action("delete_post", array($this, "remove")); // trash not turned on
+		add_action("wp_trash_post", array($this, "remove")); // trash turned on
 
-// whenever a post is trashed
-add_action("delete_post", "elasticFields_removeOne"); // trash not turned on
-add_action("wp_trash_post", "elasticFields_removeOne"); // trash turned on
+		// attachments
+		add_action("add_attachment", array($this, "attachmentSaved"));
+		add_action("edit_attachment", array($this, "attachmentSaved"));
+		add_action("delete_attachment", array($this, "remove"));
 
-// attachments
-add_action("add_attachment", "elasticFields_attachmentSaved");
-add_action("edit_attachment", "elasticFields_attachmentSaved");
-add_action("delete_attachment", "elasticFields_removeOne");
+		// reindex button in admin
+		add_action("admin_post_wp_elastic_posts_reindex", array($this, "reindex"));
+	}
 
-// reindex button in admin
-add_action("admin_post_wp_elastic_posts_reindex", function ()
-{
-	$es = new \ElasticPosts\Elasticsearch(elasticFields_getOptions());
-	$es->reindex();
+	protected function getElasticsearch()
+	{
+		$root = dirname(dirname(dirname(dirname(__DIR__))));
 
-	$redirect = admin_url("options-general.php?page=elastic-posts");
-	header("Location: {$redirect}");
-});
+		$options = array(
+			"settings_directory" => $root . "/config/elasticsearch/jhuedu",
+			"logger" => $this->logger
+		);
 
-// // imports all fields (for testing)
-// add_action("admin_init", function () {
-// 	$es = new \ElasticPosts\Elasticsearch();
-// 	$es->putAll();
-// });
+		$es = new \ElasticPosts\Elasticsearch($options);
 
-
-function elasticFields_attachmentSaved($id)
-{
-	$es = new \ElasticPosts\Elasticsearch(elasticFields_getOptions());
-	$es->put($id);
-}
-
-
-/**
- * Analyzes $_POST and $_GET to figure out
- * what to do with the post in question.
- *
- * post_saved is triggered when a post is
- * created, updated, or restored from the trash
- * 
- * @param  integer $id Post ID
- * @return array Response from elasticsearch
- */
-function elasticFields_postSaved($id)
-{
-	$es = new \ElasticPosts\Elasticsearch(elasticFields_getOptions());
-
-	// Post changed from post.php or from Quick Edit on edit.php
-	if (!empty($_POST)) {
-
-		if ($_POST["post_status"] !== "publish") {
-			return $es->remove($id);
-		} else {
-			return $es->put($id);
+		if (!$es->init()) {
+			return false;
 		}
 
-	// new post added, bulk actions from edit.php, restore from trash
-	// if no action is set, this is a new post initiating
-	} else if (!empty($_GET) && isset($_GET["action"])) {
+		return $es;
+		
+	}
 
-		$action = $_GET["action"];
-		$ids = $_GET["post"];
+	public function postSaved($id)
+	{
+		$es = $this->getElasticsearch();
+		
+		if (!$es) {
+			return false;
+		}
 
-		if ($action == "edit") {
-			if ($_GET["_status"] != "publish") {
-				return $es->remove($ids);
+		// Post changed from post.php or from Quick Edit on edit.php
+		if (!empty($_POST)) {
 
+			if ($_POST["post_status"] !== "publish") {
+				return $es->remove($id);
 			} else {
+				return $es->put($id);
+			}
+
+		// new post added, bulk actions from edit.php, restore from trash
+		// if no action is set, this is a new post initiating
+		} else if (!empty($_GET) && isset($_GET["action"])) {
+
+			$action = $_GET["action"];
+			$ids = $_GET["post"];
+
+			if ($action == "edit") {
+				if ($_GET["_status"] != "publish") {
+					return $es->remove($ids);
+
+				} else {
+					return $es->put($ids);
+				}
+			}
+
+			if ($action == "untrash") {
 				return $es->put($ids);
 			}
+
+		// new post initating, new post inserted
+		} else if ($id) {
+			return $es->put($id);
+		}
+	}
+
+	public function remove()
+	{
+		$es = $this->getElasticsearch();
+		
+		if (!$es) {
+			return false;
 		}
 
-		if ($action == "untrash") {
-			return $es->put($ids);
+		$ids = $_GET["post"];
+		$es->remove($ids);
+	}
+
+	public function attachmentSaved($id)
+	{
+		$es = $this->getElasticsearch();
+		
+		if (!$es) {
+			return false;
 		}
 
-	// new post initating, new post inserted
-	} else if ($id) {
 		return $es->put($id);
+	}
+
+	public function reindex()
+	{
+		$es = $this->getElasticsearch();
+		
+		if (!$es) {
+			return false;
+		}
+
+		$es->reindex();
+
+		$redirect = admin_url("options-general.php?page=elastic-posts");
+		header("Location: {$redirect}");
 	}
 }
 
-/**
- * Removes a resource
- * @param  integer $id Post ID
- * @return array Response from elasticsearch
- */
-function elasticFields_removeOne($id)
-{
-	$es = new \ElasticPosts\Elasticsearch(elasticFields_getOptions());
-
-	$ids = $_GET["post"];
-	$es->remove($ids);
-}
+new ElasticPostsMain($wp_logger);

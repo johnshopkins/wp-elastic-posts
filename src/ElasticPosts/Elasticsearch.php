@@ -7,6 +7,7 @@ use Secrets\Secret;
 class Elasticsearch
 {
 	protected $settings_directory;
+	protected $logger;
 
 	/**
 	 * Indexes already assigned to jhu
@@ -28,6 +29,7 @@ class Elasticsearch
 	public function __construct($options = array())
 	{
 		$this->settings_directory = $options["settings_directory"];
+		$this->logger = $options["logger"];
 
 		// allow for dependency injection (testing)
         $args = func_get_args();
@@ -35,24 +37,40 @@ class Elasticsearch
 
         $this->wordpress = isset($args["wordpress"]) ? $args["wordpress"] : new \WPUtilities\WordPressWrapper();
         $this->httpEngine = isset($args["httpEngine"]) ? $args["httpEngine"] : new \HttpExchange\Adapters\Resty(new \Resty());
-        $this->client = isset($args["elasticsearch"]) ? $args["elasticsearch"] : new \Elasticsearch\Client($this->getConfig());
+	}
 
-        $this->setupVars();
+	public function init()
+	{
+		if (!$this->setupVars()) {
+			return false;
+		}
+
+        $this->client = isset($args["elasticsearch"]) ? $args["elasticsearch"] : new \Elasticsearch\Client($this->config);
+        return true;
 	}
 
 	protected function setupVars()
 	{
 		$this->post_types = array_keys($this->wordpress->get_option("elastic-posts_settings_post_types"));
 		$this->index = $this->wordpress->get_option("elastic-posts_settings_index");
+		$this->config = $this->getConfig();
 		$this->apiBase = \WPUtilities\API::getApiBase();
 
 		if (!$this->post_types) {
-			// @log and email devs
+			$this->logger->addWarning("Elastic Posts plugin :: There are no post types selected to import into elasticsearch.");
+			return false;
 		}
 
 		if (!$this->index) {
-			// @log and email devs
+			$this->logger->addWarning("Elastic Posts plugin :: An index has not been set.");
+			return false;
 		}
+
+		if (!$this->config) {
+			return false;
+		}
+
+		return true;
 	}
 
 	/**
@@ -62,6 +80,12 @@ class Elasticsearch
 	protected function getConfig()
 	{
 		$box = $this->wordpress->get_option("elastic-posts_settings_box");
+
+		if (!$box) {
+			$this->logger->addWarning("Elastic Posts plugin :: An elasticsearch box has not been set.");
+			return false;
+		}
+
 		$secrets = Secret::get("qbox", $box);
 
 		return array(
