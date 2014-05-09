@@ -34,6 +34,11 @@ class Director
 		// Post changed from post.php or from Quick Edit on edit.php
 		if (!empty($_POST)) {
 
+			// autosave
+			if (!isset($_POST["post_status"])) {
+				return;
+			}
+
 			if ($_POST["post_status"] !== "publish") {
 				return $this->remove($id);
 			} else {
