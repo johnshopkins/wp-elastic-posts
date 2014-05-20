@@ -15,7 +15,9 @@ class PutWorker extends BaseWorker
     public function put(\GearmanJob $job)
     {
         $workload = json_decode($job->workload());
-        return json_encode($this->putOne($workload->id, $workload->index));
+        echo $this->getDate() . " Initiating elasticsearch PUT of post #{$workload->id}...\n";
+        $result = $this->putOne($workload->id, $workload->index);
+        if ($result) echo $this->getDate() . " Finished elasticsearch PUT of post #{$workload->id}.\n";
     }
 
     /**
@@ -55,11 +57,12 @@ class PutWorker extends BaseWorker
      */
     public function putOne($id, $index = null)
     {
-        if ($this->isRevision($id)) return;
-
         $post = $this->getPostFromApi($id);
 
-        if (!$post) return false;
+        if (!$post) {
+            echo $this->getDate() . " Post # {$id} is either an autosave or revision. Skipping.\n";
+            return false;
+        }
 
         $params = array(
             "index" => !is_null($index) ? $index : $this->index,

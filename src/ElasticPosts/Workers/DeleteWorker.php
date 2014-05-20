@@ -15,7 +15,10 @@ class DeleteWorker extends BaseWorker
     public function delete(\GearmanJob $job)
     {
         $workload = json_decode($job->workload());
-        return json_encode($this->deleteOne($workload->id, $workload->post_type));
+        echo $this->getDate() . " Initiating elasticsearch DELETE of post #{$workload->id}...\n";
+        $result = $this->deleteOne($workload->id, $workload->post_type);
+
+        if ($result) echo $this->getDate() . " Finished elasticsearch DELETE of post #{$workload->id}...\n";
     }
 
     /**
@@ -25,8 +28,6 @@ class DeleteWorker extends BaseWorker
      */
     protected function deleteOne($id, $postType)
     {
-        if ($this->isRevision($id)) return;
-
         $params = array(
             "index" => $this->index,
             "type" => $postType,
@@ -35,7 +36,12 @@ class DeleteWorker extends BaseWorker
 
         // delete actions in WP are called twice; make sure the document
         // exists in elasticsearch before deleting it
-        return $this->elasticsearchClient->exists($params) ? $this->elasticsearchClient->delete($params) : false;
+        if (!$this->elasticsearchClient->exists($params)) {
+            echo $this->getDate() . " Post #{$id} doesn't exist in elasticsearch. Skipping.\n";
+            return false;
+        }
+
+        return $this->elasticsearchClient->delete($params);
     }
 
 }

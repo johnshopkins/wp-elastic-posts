@@ -28,6 +28,9 @@ class ReindexWorker extends PutWorker
     public function reindex(\GearmanJob $job)
     {
         $workload = json_decode($job->workload());
+
+        echo $this->getDate() . " Initiating elasticsearch REINDEX...\n";
+
         $this->settingsDirectory = $workload->settingsDirectory;
 
         // create new index
@@ -44,6 +47,8 @@ class ReindexWorker extends PutWorker
         foreach ($this->existingIndexes as $index) {
             $this->deleteIndex($index);
         }
+
+        echo $this->getDate() . " Finished elasticsearch REINDEX.\n";
     }
 
     /**
