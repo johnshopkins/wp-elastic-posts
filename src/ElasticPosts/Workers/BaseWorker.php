@@ -31,6 +31,12 @@ abstract class BaseWorker
     protected $httpEngine;
 
     /**
+    * Post Utility
+    * @var object
+    */
+    protected $post_util;
+
+    /**
      * Elasticsearch client
      * @var object
      */
@@ -43,7 +49,8 @@ abstract class BaseWorker
 
         $this->wordpress = isset($injection["wordpress"]) ? $injection["wordpress"] : new \WPUtilities\WordPressWrapper();
         $this->httpEngine = isset($injection["httpEngine"]) ? $injection["httpEngine"] : new \HttpExchange\Adapters\Resty(new \Resty());
-        
+        $this->post_util = isset($injection["post_util"]) ? $injection["post_util"] : new \WPUtilities\Post();
+
         $this->setupVars();
 
         $this->elasticsearchClient = isset($injection["elasticsearch"]) ? $injection["elasticsearch"] : new \Elasticsearch\Client($this->getElasticsearchConfig());
@@ -105,12 +112,12 @@ abstract class BaseWorker
     protected function addFunctions() {}
 
     /**
-     * Find out if a post is a revision
-     * @param  integer $id Post ID
-     * @return boolan
-     */
-    protected function isRevision($id)
+    * Find out if a post is a revision
+    * @param  object $post Post object
+    * @return boolan
+    */
+    protected function isRevision($post)
     {
-        return $this->wordpress->wp_is_post_revision($id);
+        return $this->post_util->isRevision($post);
     }
 }
