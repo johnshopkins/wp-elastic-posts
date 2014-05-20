@@ -1,0 +1,16 @@
+{
+  "name": "wp-elastic-posts",
+  "version": "0.0.0",
+  "description": "WordPress plugin that pushes content to Elasticsearch",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/johnshopkins/wp-elastic-posts.git"
+  },
+  "author": "Jen Wachter",
+  "license": "MIT",
+  "devDependencies": {
+    "gulp": "^3.6.2",
+    "gulp-tasks": "git+ssh://git@github.com:johnshopkins/gulp-tasks.git"
+  }
+}
