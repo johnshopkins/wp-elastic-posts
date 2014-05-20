@@ -20,14 +20,19 @@ class ElasticPosts
 		});
 
 		// posts
-		add_action("save_post", array($this->director, "postSaved"));
-		add_action("delete_post", array($this->director, "remove")); // trash not turned on
-		add_action("wp_trash_post", array($this->director, "remove")); // trash turned on
+		add_action("save_post", array($this->director, "put"));
+
+		// if trash is turned off, add a hook to take care of deleted
+    // posts. Otherwise, deleted posts are treated with save_post
+    // as a status change
+    if (defined("EMPTY_TRASH_DAYS") && EMPTY_TRASH_DAYS == 0) {
+        add_action("deleted_post", array($this->director, "remove"));
+    }
 
 		// attachments
-		add_action("add_attachment", array($this->director, "attachmentSaved"));
-		add_action("edit_attachment", array($this->director, "attachmentSaved"));
-		add_action("delete_attachment", array($this->director, "remove"));
+		add_action("add_attachment", array($this->director, "put"));
+		add_action("edit_attachment", array($this->director, "put"));
+		// add_action("delete_attachment", array($this->director, "remove"));
 
 		// reindex button in admin
 		add_action("admin_post_wp_elastic_posts_reindex", array($this, "reindex"));

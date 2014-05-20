@@ -29,53 +29,6 @@ class Director
 		$this->gearmanClient->addServer("127.0.0.1");
 	}
 
-	public function postSaved($id)
-	{
-		// Post changed from post.php or from Quick Edit on edit.php
-		if (!empty($_POST)) {
-
-			// autosave
-			if (!isset($_POST["post_status"])) {
-				return;
-			}
-
-			if ($_POST["post_status"] !== "publish") {
-				return $this->remove($id);
-			} else {
-				return $this->put($id);
-			}
-
-		// new post added, bulk actions from edit.php, restore from trash
-		// if no action is set, this is a new post initiating
-		} else if (!empty($_GET) && isset($_GET["action"])) {
-
-			$action = $_GET["action"];
-			$ids = $_GET["post"];
-
-			if ($action == "edit") {
-				if ($_GET["_status"] != "publish") {
-					return $this->remove($ids);
-
-				} else {
-					return $this->put($ids);
-				}
-			}
-
-			if ($action == "untrash") {
-				return $this->put($ids);
-			}
-
-		// new post initating, new post inserted
-		} else if ($id) {
-			return $this->put($id);
-		}
-	}
-
-	public function attachmentSaved($id)
-	{
-		return $this->put($id);
-	}
-
 	public function put($ids, $index = null)
 	{
 		return array_map(function ($id) use ($index) {
