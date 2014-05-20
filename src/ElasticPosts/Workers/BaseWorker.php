@@ -51,6 +51,11 @@ abstract class BaseWorker
         $this->addFunctions();
     }
 
+    protected function getDate()
+    {
+        return date("Y-m-d H:i:s");
+    }
+
     protected function setupVars()
     {
         $this->post_types = array_keys($this->wordpress->get_option("elastic-posts_settings_post_types"));
