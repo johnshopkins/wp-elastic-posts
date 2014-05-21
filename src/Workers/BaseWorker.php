@@ -48,7 +48,7 @@ abstract class BaseWorker
         $this->logger = $settings["logger"];
 
         $this->wordpress = isset($injection["wordpress"]) ? $injection["wordpress"] : new \WPUtilities\WordPressWrapper();
-        $this->httpEngine = isset($injection["httpEngine"]) ? $injection["httpEngine"] : new \HttpExchange\Adapters\Resty(new \Resty());
+        $this->httpEngine = isset($injection["httpEngine"]) ? $injection["httpEngine"] : new \HttpExchange\Adapters\Resty(new \Resty\Resty());
         $this->post_util = isset($injection["post_util"]) ? $injection["post_util"] : new \WPUtilities\Post();
 
         $this->setupVars();

@@ -3,7 +3,7 @@
         "This file locks the dependencies of your project to a known state",
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
     ],
-    "hash": "7f26f05cb0a43ad55b03b9f4b32e441b",
+    "hash": "89b3b689100ee3f8a23e961cf6d03a41",
     "packages": [
         {
             "name": "composer/installers",
@@ -294,12 +294,12 @@
             "source": {
                 "type": "git",
                 "url": "git@github.com:johnshopkins/secrets.git",
-                "reference": "2e442e61a68810f78c18d1341f5a52f2cf6f0cb6"
+                "reference": "cfb96b1b969f48915ff1d382a832cf4b9cf96ee9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/johnshopkins/secrets/zipball/2e442e61a68810f78c18d1341f5a52f2cf6f0cb6",
-                "reference": "2e442e61a68810f78c18d1341f5a52f2cf6f0cb6",
+                "url": "https://api.github.com/repos/johnshopkins/secrets/zipball/cfb96b1b969f48915ff1d382a832cf4b9cf96ee9",
+                "reference": "cfb96b1b969f48915ff1d382a832cf4b9cf96ee9",
                 "shasum": ""
             },
             "type": "library",
@@ -313,7 +313,7 @@
                 "source": "https://github.com/johnshopkins/secrets/tree/master",
                 "issues": "https://github.com/johnshopkins/secrets/issues"
             },
-            "time": "2014-05-02 13:41:21"
+            "time": "2014-05-21 13:48:25"
         },
         {
             "name": "johnshopkins/wp-utilities",
@@ -321,17 +321,17 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/johnshopkins/wp-utilities.git",
-                "reference": "10728a2b9a07b496c8c69e5a89dc31c3c47fcfe4"
+                "reference": "5e108ce408ab41f614f782518cd0db02227dc1cb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/johnshopkins/wp-utilities/zipball/10728a2b9a07b496c8c69e5a89dc31c3c47fcfe4",
-                "reference": "10728a2b9a07b496c8c69e5a89dc31c3c47fcfe4",
+                "url": "https://api.github.com/repos/johnshopkins/wp-utilities/zipball/5e108ce408ab41f614f782518cd0db02227dc1cb",
+                "reference": "5e108ce408ab41f614f782518cd0db02227dc1cb",
                 "shasum": ""
             },
             "require": {
                 "johnshopkins/http-exchange": "0.3.*",
-                "resty/resty": "0.4.*",
+                "resty/resty": "0.6.*",
                 "twig/twig": "1.15.*"
             },
             "require-dev": {
@@ -350,7 +350,7 @@
                 "source": "https://github.com/johnshopkins/wp-utilities/tree/master",
                 "issues": "https://github.com/johnshopkins/wp-utilities/issues"
             },
-            "time": "2014-05-20 13:00:38"
+            "time": "2014-05-21 16:09:22"
         },
         {
             "name": "monolog/monolog",
@@ -508,25 +508,28 @@
         },
         {
             "name": "resty/resty",
-            "version": "0.4.0",
+            "version": "0.6.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/fictivekin/Resty.php.git",
-                "reference": "f1dae2d4972334984f3c50c0e89444bab9e1fcf6"
+                "reference": "3ba18ec4b507b3b6fcbc49bba5a503baba051c0a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fictivekin/Resty.php/zipball/f1dae2d4972334984f3c50c0e89444bab9e1fcf6",
-                "reference": "f1dae2d4972334984f3c50c0e89444bab9e1fcf6",
+                "url": "https://api.github.com/repos/fictivekin/Resty.php/zipball/3ba18ec4b507b3b6fcbc49bba5a503baba051c0a",
+                "reference": "3ba18ec4b507b3b6fcbc49bba5a503baba051c0a",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.3.0"
             },
+            "require-dev": {
+                "funkatron/funit": "dev-master"
+            },
             "type": "library",
             "autoload": {
-                "psr-0": {
-                    "Resty": ""
+                "psr-4": {
+                    "Resty\\": "src"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -548,7 +551,7 @@
                 "rest",
                 "restful"
             ],
-            "time": "2012-07-17 20:30:54"
+            "time": "2014-02-13 16:19:46"
         },
         {
             "name": "symfony/event-dispatcher",
