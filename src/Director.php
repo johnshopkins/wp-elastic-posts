@@ -29,6 +29,17 @@ class Director
 		$this->gearmanClient->addServer("127.0.0.1");
 	}
 
+	public function post_saved($id)
+	{
+		$post = $this->wordpress->get_post($id);
+
+		if ($post->post_status == "publish") {
+			$this->put((array) $id);
+		} else {
+			$this->remove((array) $id);
+		}
+	}
+
 	public function put($ids, $index = null)
 	{
 		return array_map(function ($id) use ($index) {
@@ -39,8 +50,9 @@ class Director
 		}, (array) $ids);
 	}
 
-	public function remove()
+	public function remove($ids = null)
 	{
+		$ids = !is_null($ids) ? $ids : (array) $_GET["post"];
 		return array_map(function ($id) {
 			return $this->gearmanClient->doBackground("elasticsearch_delete", json_encode(array(
 				"id" => $id,
@@ -49,7 +61,7 @@ class Director
 				// elasticsearch, it will be delted from wordpress and this info will be lost
 				"post_type" => $this->wordpress->get_post_type($id)
 			)));
-		}, (array) $_GET["post"]);
+		}, $ids);
 	}
 
 	public function reindex()

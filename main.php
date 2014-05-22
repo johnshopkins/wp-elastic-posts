@@ -20,7 +20,7 @@ class ElasticPosts
 		});
 
 		// posts
-		add_action("save_post", array($this->director, "put"));
+		add_action("save_post", array($this->director, "post_saved"));
 
 		// if trash is turned off, add a hook to take care of deleted
     // posts. Otherwise, deleted posts are treated with save_post
