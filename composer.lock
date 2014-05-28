@@ -3,7 +3,7 @@
         "This file locks the dependencies of your project to a known state",
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
     ],
-    "hash": "89b3b689100ee3f8a23e961cf6d03a41",
+    "hash": "a35a50ed7dc698fd37f2ddee9cf2f763",
     "packages": [
         {
             "name": "composer/installers",
@@ -321,12 +321,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/johnshopkins/wp-utilities.git",
-                "reference": "5e108ce408ab41f614f782518cd0db02227dc1cb"
+                "reference": "6f9df6acda13b23b657cbf9557953c504aa73208"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/johnshopkins/wp-utilities/zipball/5e108ce408ab41f614f782518cd0db02227dc1cb",
-                "reference": "5e108ce408ab41f614f782518cd0db02227dc1cb",
+                "url": "https://api.github.com/repos/johnshopkins/wp-utilities/zipball/6f9df6acda13b23b657cbf9557953c504aa73208",
+                "reference": "6f9df6acda13b23b657cbf9557953c504aa73208",
                 "shasum": ""
             },
             "require": {
@@ -350,7 +350,7 @@
                 "source": "https://github.com/johnshopkins/wp-utilities/tree/master",
                 "issues": "https://github.com/johnshopkins/wp-utilities/issues"
             },
-            "time": "2014-05-21 16:09:22"
+            "time": "2014-05-28 14:22:44"
         },
         {
             "name": "monolog/monolog",
