@@ -83,8 +83,9 @@ class PutWorker extends BaseWorker
     protected function getPostFromApi($id)
     {
         $params = array(
-            "clear_cache" => true,  // get changes
-            "status" => "any"       // post may have been a draft
+            "clear_cache" => true,      // get changes
+            "status" => "any",          // post may have been a draft
+            "returnEmbedded" => false   // do not return embedded objects
         );
 
         $post = $this->httpEngine->get("{$this->apiBase}/{$id}", $params)->getBody()->data;
