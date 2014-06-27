@@ -32,11 +32,12 @@ class PutWorker extends BaseWorker
 
         foreach ($this->post_types as $type) {
 
-            $data[$type] = $this->httpEngine->get("{$this->apiBase}/{$type}", array(
+            $data[$type] = $this->api->get("/{$type}", array(
                 "per_page" => -1,
                 "clear_cache" => true,
-                "returnMeta" => false)
-                )->getBody()->data;
+                "returnMeta" => false,
+                "returnEmbedded" => false
+            ))->data;
         }
 
         // put posts in elasticsearch
@@ -88,7 +89,7 @@ class PutWorker extends BaseWorker
             "returnEmbedded" => false   // do not return embedded objects
         );
 
-        $post = $this->httpEngine->get("{$this->apiBase}/{$id}", $params)->getBody()->data;
+        $post = $this->api->get("/{$id}", $params)->data;
 
         if (!$post) return false; // autosave
 

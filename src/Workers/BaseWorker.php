@@ -25,10 +25,10 @@ abstract class BaseWorker
     protected $wordpress;
 
     /**
-     * HTTP engine
+     * API
      * @var object
      */
-    protected $httpEngine;
+    protected $api;
 
     /**
     * Post Utility
@@ -48,7 +48,7 @@ abstract class BaseWorker
         $this->logger = $settings["logger"];
 
         $this->wordpress = isset($injection["wordpress"]) ? $injection["wordpress"] : new \WPUtilities\WordPressWrapper();
-        $this->httpEngine = isset($injection["httpEngine"]) ? $injection["httpEngine"] : new \HttpExchange\Adapters\Resty(new \Resty\Resty());
+        $this->api = isset($injection["api"]) ? $injection["api"] : new \WPUtilities\API();
         $this->post_util = isset($injection["post_util"]) ? $injection["post_util"] : new \WPUtilities\Post();
 
         $this->setupVars();

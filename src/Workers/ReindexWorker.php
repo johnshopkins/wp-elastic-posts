@@ -34,16 +34,20 @@ class ReindexWorker extends PutWorker
         $this->settingsDirectory = $workload->settingsDirectory;
 
         // create new index
+        echo $this->getDate() . " Creating new index...\n";
         $newIndex = $this->createIndex();
 
         // put data into new index
+        echo $this->getDate() . " Putting all data into new index...\n";
         $this->putAll($newIndex);
 
         // assign new index to alias
+        echo $this->getDate() . " Assigning new index to alias...\n";
         $alias = get_option("elastic-posts_settings_index");
         $this->clearAndAssignAlias($newIndex, $alias);
 
         // delete old index
+        echo $this->getDate() . " Deleting old index...\n";
         foreach ($this->existingIndexes as $index) {
             $this->deleteIndex($index);
         }
