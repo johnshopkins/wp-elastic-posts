@@ -46,8 +46,9 @@ class Admin
                 "label" => "Index Name"
             ),
             "post_types" => array(
+                "type" => "checkbox_group",
                 "label" => "Post types to import",
-                "fields" => $this->getPostTypeFields()
+                "options" => $this->getPostTypeFields()
             )
         );
 
@@ -66,11 +67,7 @@ class Admin
         $fields = array();
 
         foreach($posttypes as $posttype) {
-            $fields[$posttype->name] = array(
-                "type" => "checkbox",
-                "name" => $posttype->name,
-                "label" => $posttype->label
-            );
+            $fields[$posttype->name] = $posttype->label;
         }
 
         return $fields;
