@@ -32,18 +32,26 @@ class PutWorker extends BaseWorker
 
         foreach ($this->post_types as $type) {
 
-            $data[$type] = $this->api->get("/{$type}", array(
-                "per_page" => -1,
-                "clear_cache" => true,
-                "returnMeta" => false,
-                "returnEmbedded" => false
-            ))->data;
-        }
+            if ($type == "attachment") {
+                $status = "inherit";
+            } else if ($type == "instagram_media") {
+                $status = array("publish", "always_keep");
+            } else {
+                $status = "publish";
+            }
 
-        // put posts in elasticsearch
-        foreach ($data as $type => $posts) {
-            foreach ($posts as $post) {
-                $responses[] = $this->putOne($post->ID, $index);
+            $result = $this->wordpress_query->run(array(
+              "post_type" => $type,
+              "post_status" => $status,
+              "paged" => $paged,
+              "fields" => "ids"
+            ));
+
+            $ids = $result->posts;
+
+            foreach ($ids as $id) {
+              $responses[] = $this->putOne($id, $index);
+              echo $this->getDate() . " Put of post {$type}/{$id} complete.\n";
             }
         }
 
@@ -89,7 +97,7 @@ class PutWorker extends BaseWorker
             "returnEmbedded" => false   // do not return embedded objects
         );
 
-        $post = $this->api->get("/{$id}", $params)->data;
+        $post = $this->api->get($id, $params)->data;
 
         if (!$post) return false; // autosave
 
