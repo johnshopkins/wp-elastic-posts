@@ -43,7 +43,7 @@ class PutWorker extends BaseWorker
             $result = $this->wordpress_query->run(array(
               "post_type" => $type,
               "post_status" => $status,
-              "paged" => $paged,
+              "posts_per_page" => -1,
               "fields" => "ids"
             ));
 
