@@ -54,7 +54,7 @@ abstract class BaseWorker
         $this->logger = $settings["logger"];
 
         $this->wordpress = isset($injection["wordpress"]) ? $injection["wordpress"] : new \WPUtilities\WordPressWrapper();
-        $this->wordpress_query = isset($injection["wordpress_query"]) ? $injection["wordpress_query"] : new \WPUtilities\WordPressQueryWrapper();
+        $this->wordpress_query = isset($injection["wordpress_query"]) ? $injection["wordpress_query"] : new \WPUtilities\WPQueryWrapper();
         $this->api = isset($injection["api"]) ? $injection["api"] : new \WPUtilities\API();
         $this->post_util = isset($injection["post_util"]) ? $injection["post_util"] : new \WPUtilities\Post();
 
