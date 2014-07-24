@@ -91,7 +91,7 @@ class PutWorker extends BaseWorker
      */
     protected function getPostFromApi($id)
     {
-        $post = $this->api->get("/{$id}", array("returnEmbedded" => false))->data;
+        $post = $this->api->get($id)->data;
 
         if (!$post) return false; // autosave
 
