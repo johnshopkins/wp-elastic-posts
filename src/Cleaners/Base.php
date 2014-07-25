@@ -37,18 +37,6 @@ class Base
         return $post;
     }
 
-    protected function assignTitle($post, $field = "post_title")
-    {
-        $this->assignField($post, "title", $field);
-        return $post;
-    }
-
-    protected function assignDate($post, $field = "post_date")
-    {
-        $this->assignField($post, "date", $field);
-        return $post;
-    }
-
     protected function assignDescription($post, $field = "post_content")
     {
         $this->assignField($post, "description", $field);
