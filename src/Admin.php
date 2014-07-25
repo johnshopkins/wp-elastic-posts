@@ -62,7 +62,7 @@ class Admin
 
     protected function getPostTypeFields()
     {
-        $posttypes = $this->wordpress->get_post_types(array("public" => true), "objects");
+        $posttypes = $this->wordpress->get_post_types(array("show_in_menu" => "content"), "objects");
 
         $fields = array();
 
