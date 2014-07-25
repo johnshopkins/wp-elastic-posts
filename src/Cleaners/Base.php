@@ -7,7 +7,6 @@ class Base
     public function clean($post)
     {
         $post = $this->extractMeta($post);
-        $post = $this->assignDate($post);
         return $post;
     }
 
