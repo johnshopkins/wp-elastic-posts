@@ -37,10 +37,6 @@ class Admin
     protected function createSettingsSection()
     {
         $fields = array(
-            "box" => array(
-                "type" => "text",
-                "label" => "Which box to connect to?"
-            ),
             "index" => array(
                 "type" => "text",
                 "label" => "Index Name"

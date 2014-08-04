@@ -95,14 +95,7 @@ abstract class BaseWorker
      */
     protected function getElasticsearchConfig()
     {
-        $box = $this->wordpress->get_option("elastic-posts_settings_box");
-
-        if (!$box) {
-            $this->logger->addWarning("Elastic Posts plugin :: An elasticsearch box has not been set.");
-            return false;
-        }
-
-        $secrets = Secret::get("qbox", $box);
+        $secrets = Secret::get("qbox", ENV);
 
         return array(
             "hosts" => array($secrets->url . ":80"),
