@@ -43,7 +43,7 @@ class ReindexWorker extends PutWorker
 
         // assign new index to alias
         echo $this->getDate() . " Assigning new index to alias...\n";
-        $alias = get_option("elastic-posts_settings_index");
+        $alias = $this->index;
         $this->clearAndAssignAlias($newIndex, $alias);
 
         // delete old index

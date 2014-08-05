@@ -37,10 +37,6 @@ class Admin
     protected function createSettingsSection()
     {
         $fields = array(
-            "index" => array(
-                "type" => "text",
-                "label" => "Index Name"
-            ),
             "post_types" => array(
                 "type" => "checkbox_group",
                 "label" => "Post types to import",
