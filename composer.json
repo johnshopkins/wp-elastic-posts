@@ -16,7 +16,7 @@
   "require": {
     "elasticsearch/elasticsearch": "1.*",
     "composer/installers": "~1.0",
-    "johnshopkins/wp-utilities": "dev-master",
+    "johnshopkins/wp-utilities": "dev-develop",
     "johnshopkins/secrets": "dev-master"
   },
   "require-dev": {
