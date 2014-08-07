@@ -1,6 +1,6 @@
 {
   "name": "wp-elastic-posts",
-  "version": "0.1.1",
+  "version": "1.0.1",
   "description": "WordPress plugin that pushes content to Elasticsearch",
   "scripts": {},
   "repository": {
