@@ -26,7 +26,19 @@ class Director
 		$this->wordpress = isset($injection["wordpress"]) ? $injection["wordpress"] : new \WPUtilities\WordPressWrapper();
 
 		$this->gearmanClient = isset($injection["gearmanClient"]) ? $injection["gearmanClient"] : new \GearmanClient();
-		$this->gearmanClient->addServer("127.0.0.1");
+		
+		$servers = Secret::get("jhu", ENV, "servers");
+
+    if ($servers) {
+
+      foreach ($servers as $server) {
+        $this->gearmanClient->addServer($server->hostname);
+      }
+
+    } else {
+      $this->logger->addAlert("Servers unavailable for Gearman " . __FILE__ . " on line " + __LINE__);
+    }
+		
 	}
 
 	public function post_saved($id)
@@ -52,7 +64,7 @@ class Director
 
 	public function remove($ids = null)
 	{
-		$ids = !is_null($ids) ? $ids : (array) $_GET["post"];
+		$ids = !is_null($ids) ? (array) $ids : (array) $_GET["post"];
 		return array_map(function ($id) {
 			return $this->gearmanClient->doBackground("elasticsearch_delete", json_encode(array(
 				"id" => $id,

@@ -48,6 +48,8 @@ abstract class BaseWorker
      */
     protected $elasticsearchClient;
 
+    protected $index = "jhu";
+
     public function __construct($settings = array(), $injection = array())
     {
         $this->worker = $settings["worker"];
@@ -73,16 +75,10 @@ abstract class BaseWorker
     protected function setupVars()
     {
         $this->post_types = array_keys($this->wordpress->get_option("elastic-posts_settings_post_types"));
-        $this->index = $this->wordpress->get_option("elastic-posts_settings_index");
         $this->apiBase = \WPUtilities\API::getApiBase();
 
         if (!$this->post_types) {
             $this->logger->addWarning("Elastic Posts plugin :: There are no post types selected to import into elasticsearch.");
-            return false;
-        }
-
-        if (!$this->index) {
-            $this->logger->addWarning("Elastic Posts plugin :: An index has not been set.");
             return false;
         }
 
@@ -95,14 +91,7 @@ abstract class BaseWorker
      */
     protected function getElasticsearchConfig()
     {
-        $box = $this->wordpress->get_option("elastic-posts_settings_box");
-
-        if (!$box) {
-            $this->logger->addWarning("Elastic Posts plugin :: An elasticsearch box has not been set.");
-            return false;
-        }
-
-        $secrets = Secret::get("qbox", $box);
+        $secrets = Secret::get("qbox", ENV);
 
         return array(
             "hosts" => array($secrets->url . ":80"),

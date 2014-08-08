@@ -1,6 +1,6 @@
 {
   "name": "johnshopkins/wp-elastic-posts",
-  "version": "0.1.1",
+  "version": "1.0.2",
   "type": "wordpress-plugin",
   "description": "Imports fields of study into elasticsearch.",
   "repositories": [
@@ -16,7 +16,7 @@
   "require": {
     "elasticsearch/elasticsearch": "1.*",
     "composer/installers": "~1.0",
-    "johnshopkins/wp-utilities": "dev-master",
+    "johnshopkins/wp-utilities": "1.*",
     "johnshopkins/secrets": "dev-master"
   },
   "require-dev": {

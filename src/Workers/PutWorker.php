@@ -102,7 +102,9 @@ class PutWorker extends BaseWorker
         if ($post->post_type != "attachment" && $post->post_status !== "publish") return false;
 
         // this post type shoud not be saved
-        if (!in_array($post->post_type, $this->post_types)) return false;
+        if (!in_array($post->post_type, $this->post_types)) {
+          echo $this->getDate() . " Post {$id} is a {$post->post_type}, which does not save to elasticsearch. Skipping.\n";
+        }
 
         return $post;
     }
