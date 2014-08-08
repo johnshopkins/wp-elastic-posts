@@ -1355,7 +1355,6 @@
     ],
     "minimum-stability": "stable",
     "stability-flags": {
-        "johnshopkins/wp-utilities": 20,
         "johnshopkins/secrets": 20
     },
     "platform": [

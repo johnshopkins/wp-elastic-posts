@@ -64,7 +64,7 @@ class Director
 
 	public function remove($ids = null)
 	{
-		$ids = !is_null($ids) ? $ids : (array) $_GET["post"];
+		$ids = !is_null($ids) ? (array) $ids : (array) $_GET["post"];
 		return array_map(function ($id) {
 			return $this->gearmanClient->doBackground("elasticsearch_delete", json_encode(array(
 				"id" => $id,
