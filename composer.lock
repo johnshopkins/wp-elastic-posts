@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "ae885c2ab991d845980d0ea76c19eae8",
+    "hash": "81355385d09237da491590c848a5ad1d",
     "packages": [
         {
             "name": "composer/installers",
@@ -429,7 +429,7 @@
         },
         {
             "name": "johnshopkins/wp-utilities",
-            "version": "1.0.0",
+            "version": "dev-develop",
             "source": {
                 "type": "git",
                 "url": "https://github.com/johnshopkins/wp-utilities.git",

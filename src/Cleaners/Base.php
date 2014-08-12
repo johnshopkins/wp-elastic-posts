@@ -7,6 +7,7 @@ class Base
     public function clean($post)
     {
         $post = $this->extractMeta($post);
+        unset($post->stitched);
         return $post;
     }
 

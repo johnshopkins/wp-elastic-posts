@@ -10,6 +10,9 @@ class block extends Base
         $post = $this->assignDescription($post, "long_body");
         $post = $this->assignSummary($post, "short_body");
         $post = $this->removeUselessWpStuff($post);
+
+        unset($post->shortcode_embedded);
+
         return $post;
     }
 }
