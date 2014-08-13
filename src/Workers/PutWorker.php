@@ -50,8 +50,15 @@ class PutWorker extends BaseWorker
             $ids = $result->posts;
 
             foreach ($ids as $id) {
-              $responses[] = $this->putOne($id, $index);
-              echo $this->getDate() . " Put of post {$type}/{$id} complete.\n";
+
+              try {
+                $this->putOne($id, $index);
+                echo $this->getDate() . " Put of post {$type}/{$id} complete.\n";
+              } catch (\Exception $e) {
+                $error = json_decode($e->getMessage());
+                echo $this->getDate() . " Put of post {$type}/{$id} FAILED. Error message: {$error['error']}\n";
+              }
+              
             }
         }
 
