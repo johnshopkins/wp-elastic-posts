@@ -56,7 +56,7 @@ class PutWorker extends BaseWorker
                 echo $this->getDate() . " Put of post {$type}/{$id} complete.\n";
               } catch (\Exception $e) {
                 $error = json_decode($e->getMessage());
-                echo $this->getDate() . " Put of post {$type}/{$id} FAILED. Error message: {$error['error']}\n";
+                echo $this->getDate() . " Put of post {$type}/{$id} FAILED. Error message: {$error->error}\n";
               }
               
             }
