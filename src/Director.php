@@ -36,7 +36,7 @@ class Director
       }
 
     } else {
-      $this->logger->addAlert("Servers unavailable for Gearman " . __FILE__ . " on line " + __LINE__);
+      $this->logger->addAlert("Servers unavailable for Gearman " . __FILE__ . " on line " . __LINE__);
     }
 		
 	}
