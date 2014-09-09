@@ -76,7 +76,7 @@ class PutWorker extends BaseWorker
         $post = $this->getPostFromApi($id);
 
         if (!$post) {
-            echo $this->getDate() . " Post # {$id} is either an autosave or revision. Skipping.\n";
+            echo $this->getDate() . " Post # {$id} is either an autosave, revision, or not saved to elasticsearch. Skipping.\n";
             return false;
         }
 
@@ -111,6 +111,7 @@ class PutWorker extends BaseWorker
         // this post type shoud not be saved
         if (!in_array($post->post_type, $this->post_types)) {
           echo $this->getDate() . " Post {$id} is a {$post->post_type}, which does not save to elasticsearch. Skipping.\n";
+          return false;
         }
 
         return $post;
