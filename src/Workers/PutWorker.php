@@ -76,7 +76,12 @@ class PutWorker extends BaseWorker
         $post = $this->getPostFromApi($id);
 
         if (!$post) {
-            echo $this->getDate() . " Post # {$id} is either an autosave, revision, or not saved to elasticsearch. Skipping.\n";
+            echo $this->getDate() . " Post #{$id} is either an autosave, revision, or not saved to elasticsearch. Skipping.\n";
+            return false;
+        }
+
+        if (isset($post->meta->visibility_level) && $post->meta->visibility_level == "explicit") {
+            echo $this->getDate() . " Post #{$id}'s visibility setting is set to 'explicit.' Skipping.\n";
             return false;
         }
 
