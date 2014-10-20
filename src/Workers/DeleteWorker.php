@@ -19,29 +19,8 @@ class DeleteWorker extends BaseWorker
         $result = $this->deleteOne($workload->id, $workload->post_type);
 
         if ($result) echo $this->getDate() . " Finished elasticsearch DELETE of post #{$workload->id}...\n";
-    }
 
-    /**
-     * Removes a document from elasticsearch
-     * @param  integer $id Post ID
-     * @return array Response from elasticsearch
-     */
-    protected function deleteOne($id, $postType)
-    {
-        $params = array(
-            "index" => $this->index,
-            "type" => $postType,
-            "id" => $id
-        );
-
-        // delete actions in WP are called twice; make sure the document
-        // exists in elasticsearch before deleting it
-        if (!$this->elasticsearchClient->exists($params)) {
-            echo $this->getDate() . " Post #{$id} doesn't exist in elasticsearch. Skipping.\n";
-            return false;
-        }
-
-        return $this->elasticsearchClient->delete($params);
+        echo "------\n";
     }
 
 }

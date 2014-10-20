@@ -18,6 +18,7 @@ class PutWorker extends BaseWorker
         echo $this->getDate() . " Initiating elasticsearch PUT of post #{$workload->id}...\n";
         $result = $this->putOne($workload->id, $workload->index);
         if ($result) echo $this->getDate() . " Finished elasticsearch PUT of post #{$workload->id}.\n";
+        echo "------\n";
     }
 
     /**
@@ -76,7 +77,14 @@ class PutWorker extends BaseWorker
         $post = $this->getPostFromApi($id);
 
         if (!$post) {
-            echo $this->getDate() . " Post # {$id} is either an autosave, revision, or not saved to elasticsearch. Skipping.\n";
+            echo $this->getDate() . " Post #{$id} is either an autosave, revision, or not saved to elasticsearch. Skipping.\n";
+            return false;
+        }
+
+        if (isset($post->meta->visibility) && $post->meta->visibility == "explicit") {
+            echo $this->getDate() . " Post #{$id}'s visibility setting is set to 'explicit.' Deleting...\n";
+            $delete = $this->deleteOne($id, $post->post_type);
+            if ($delete) echo $this->getDate() . " Finished elasticsearch DELETE of post #{$id}...\n";
             return false;
         }
 
