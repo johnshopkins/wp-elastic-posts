@@ -23,7 +23,7 @@ class PutWorker extends BaseWorker
           echo "------\n";
         } catch (\Exception $e) {
           $error = $e->getMessage();
-          echo $this->getDate() . " Put of post {$type}/{$id} FAILED. Error message: {$error}\n";
+          echo $this->getDate() . " Put of post {$workload->id} FAILED. Error message: {$error}\n";
           echo "------\n";
         }
         

@@ -23,7 +23,7 @@ class DeleteWorker extends BaseWorker
       echo "------\n";
     } catch (\Exception $e) {
       $error = $e->getMessage();
-      echo $this->getDate() . " Delete of post {$type}/{$id} FAILED. Error message: {$error}\n";
+      echo $this->getDate() . " Delete of post {$workload->id} FAILED. Error message: {$error}\n";
       echo "------\n";
     }
   }
