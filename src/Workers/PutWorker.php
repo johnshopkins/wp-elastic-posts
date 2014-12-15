@@ -22,9 +22,9 @@ class PutWorker extends BaseWorker
           if ($result) echo $this->getDate() . " Finished elasticsearch PUT of post #{$workload->id}.\n";
           echo "------\n";
         } catch (\Exception $e) {
-          $error = json_decode($e->getMessage());
-          print_r($error);
-          echo $this->getDate() . " Put of post {$type}/{$id} FAILED. Error message: {$error->error}\n";
+          $error = $e->getMessage();
+          echo $this->getDate() . " Put of post {$type}/{$id} FAILED. Error message: {$error}\n";
+          echo "------\n";
         }
         
     }

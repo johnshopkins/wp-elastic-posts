@@ -22,9 +22,9 @@ class DeleteWorker extends BaseWorker
       if ($result) echo $this->getDate() . " Finished elasticsearch DELETE of post #{$workload->id}...\n";
       echo "------\n";
     } catch (\Exception $e) {
-      $error = json_decode($e->getMessage());
-      print_r($error);
-      echo $this->getDate() . " Delete of post {$type}/{$id} FAILED. Error message: {$error->error}\n";
+      $error = $e->getMessage();
+      echo $this->getDate() . " Delete of post {$type}/{$id} FAILED. Error message: {$error}\n";
+      echo "------\n";
     }
   }
 
