@@ -2,7 +2,7 @@
 
 namespace ElasticPosts\Cleaners;
 
-class attachment extends Base
+class milestone extends Base
 {
     public function clean($post)
     {
@@ -10,7 +10,6 @@ class attachment extends Base
         $post = $this->assignDescription($post);
         $post = $this->assignSummary($post);
         $post = $this->removeUselessWpStuff($post);
-
         return $post;
     }
 }

@@ -36,13 +36,13 @@ class Base
         return $post;
     }
 
-    protected function assignDescription($post, $field = "post_content")
+    protected function assignDescription($post, $field = "description")
     {
         $this->assignField($post, "description", $field);
         return $post;
     }
 
-    protected function assignSummary($post, $field = "post_excerpt")
+    protected function assignSummary($post, $field = "summary")
     {
         $this->assignField($post, "summary", $field);
         return $post;
