@@ -16,9 +16,17 @@ class PutWorker extends BaseWorker
     {
         $workload = json_decode($job->workload());
         echo $this->getDate() . " Initiating elasticsearch PUT of post #{$workload->id}...\n";
-        $result = $this->putOne($workload->id, $workload->index);
-        if ($result) echo $this->getDate() . " Finished elasticsearch PUT of post #{$workload->id}.\n";
-        echo "------\n";
+
+        try {
+          $result = $this->putOne($workload->id, $workload->index);
+          if ($result) echo $this->getDate() . " Finished elasticsearch PUT of post #{$workload->id}.\n";
+          echo "------\n";
+        } catch (\Exception $e) {
+          $error = json_decode($e->getMessage());
+          print_r($error);
+          echo $this->getDate() . " Put of post {$type}/{$id} FAILED. Error message: {$error->error}\n";
+        }
+        
     }
 
     /**
