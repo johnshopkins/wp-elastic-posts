@@ -12,6 +12,10 @@ class ElasticPosts
 
 	public function __construct()
 	{
+		// do not run this plugin on local or staging
+		if (defined("ENV") && (ENV == "local" || ENV == "staging")) return;
+
+		
 		$this->setDirector();
 
 		// Create admin pages
@@ -47,7 +51,7 @@ class ElasticPosts
 		);
 
 		$this->director = new \ElasticPosts\Director($options);
-		
+
 	}
 
 	public function reindex()
