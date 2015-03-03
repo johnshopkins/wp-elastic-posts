@@ -2,7 +2,7 @@
 
 namespace ElasticPosts\Cleaners;
 
-class fact extends Base
+class milestone extends Base
 {
   public function clean($post)
   {
@@ -10,13 +10,12 @@ class fact extends Base
     if (!is_object($post)) return $post;
     
     $post = parent::clean($post);
-    $post = $this->assignDescription($post, "fact_description");
-    $post = $this->assignSummary($post, null);
+    $post = $this->assignDescription($post);
+    $post = $this->assignSummary($post);
     $post = $this->removeUselessWpStuff($post);
 
-    // clean icon image
-    $attachmentCleaner = new attachment();
-    $post->icon = $attachmentCleaner->clean($post->icon);
+    // clean media
+    $post = $this->cleanMedia($post);
 
     return $post;
   }

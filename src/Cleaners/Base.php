@@ -12,7 +12,11 @@ class Base
     }
 
     protected function extractMeta($post)
-    {
+    {   
+        // attachments that aren't "real" attachments (media repeater elements)
+        if (!isset($post->meta)) return $post;
+
+
         foreach ($post->meta as $k => $v) {
             $post->$k = $v;
         }
@@ -36,13 +40,13 @@ class Base
         return $post;
     }
 
-    protected function assignDescription($post, $field = "post_content")
+    protected function assignDescription($post, $field = "description")
     {
         $this->assignField($post, "description", $field);
         return $post;
     }
 
-    protected function assignSummary($post, $field = "post_excerpt")
+    protected function assignSummary($post, $field = "summary")
     {
         $this->assignField($post, "summary", $field);
         return $post;
@@ -51,6 +55,7 @@ class Base
     protected function removeUselessWpStuff($post)
     {
         unset($post->ID);
+        unset($post->post_date);
         unset($post->post_author);
         unset($post->post_date_gmt);
         unset($post->post_status);
@@ -73,6 +78,20 @@ class Base
 
         if (isset($post->post_content)) unset($post->post_content);
         if (isset($post->post_excerpt)) unset($post->post_excerpt);
+
+        return $post;
+    }
+
+    protected function cleanMedia($post)
+    {
+        $attachmentCleaner = new attachment();
+        foreach ($post->media as $type => &$images) {
+
+          foreach ($images as &$image) {
+            $image->file = $attachmentCleaner->clean($image->file);
+          }
+          
+        }
 
         return $post;
     }
