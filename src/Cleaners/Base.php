@@ -12,7 +12,7 @@ class Base
     }
 
     protected function extractMeta($post)
-    {   
+    {
         // attachments that aren't "real" attachments (media repeater elements)
         if (!isset($post->meta)) return $post;
 
@@ -36,7 +36,7 @@ class Base
         } else {
             unset($post->$fieldToAssign);
         }
-        
+
         return $post;
     }
 
@@ -62,7 +62,6 @@ class Base
         unset($post->comment_status);
         unset($post->ping_status);
         unset($post->post_password);
-        unset($post->post_name);
         unset($post->to_ping);
         unset($post->pinged);
         unset($post->post_modified);
@@ -90,7 +89,7 @@ class Base
           foreach ($images as &$image) {
             $image->file = $attachmentCleaner->clean($image->file);
           }
-          
+
         }
 
         return $post;
