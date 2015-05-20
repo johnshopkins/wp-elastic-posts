@@ -57,13 +57,13 @@ abstract class BaseWorker
 
         $this->wordpress = isset($injection["wordpress"]) ? $injection["wordpress"] : new \WPUtilities\WordPressWrapper();
         $this->wordpress_query = isset($injection["wordpress_query"]) ? $injection["wordpress_query"] : new \WPUtilities\WPQueryWrapper();
-        $this->api = isset($injection["api"]) ? $injection["api"] : new \WPUtilities\API();
+        $this->api = new \WPUtilities\API(array(), true);
         $this->post_util = isset($injection["post_util"]) ? $injection["post_util"] : new \WPUtilities\Post();
 
         $this->setupVars();
 
         $this->elasticsearchClient = isset($injection["elasticsearch"]) ? $injection["elasticsearch"] : new \Elasticsearch\Client($this->getElasticsearchConfig());
-        
+
         $this->addFunctions();
     }
 
