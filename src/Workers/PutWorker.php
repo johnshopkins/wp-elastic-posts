@@ -26,7 +26,7 @@ class PutWorker extends BaseWorker
           echo $this->getDate() . " Put of post {$workload->id} FAILED. Error message: {$error}\n";
           echo "------\n";
         }
-        
+
     }
 
     /**
@@ -67,7 +67,7 @@ class PutWorker extends BaseWorker
                 $error = json_decode($e->getMessage());
                 echo $this->getDate() . " Put of post {$type}/{$id} FAILED. Error message: {$error->error}\n";
               }
-              
+
             }
         }
 
@@ -114,7 +114,7 @@ class PutWorker extends BaseWorker
      */
     protected function getPostFromApi($id)
     {
-        $post = $this->api->get($id)->data;
+        $post = $this->api->get($id, array("clear_cache" => 1))->data;
 
         if (!$post) return false; // autosave
 
