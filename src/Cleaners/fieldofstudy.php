@@ -20,6 +20,12 @@ class fieldofstudy extends Base
       $division = $divisonCleaner->clean($division);
     }
 
+    foreach ($post->degrees as &$degree) {
+      if (!$degree->parent) {
+        unset($degree->parent);
+      }
+    }
+
     return $post;
   }
 }
