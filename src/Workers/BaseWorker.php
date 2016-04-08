@@ -91,7 +91,7 @@ abstract class BaseWorker
      */
     protected function getElasticsearchConfig()
     {
-        $secrets = Secret::get("qbox", ENV);
+        $secrets = Secret::get("qbox", "read", ENV);
 
         return array(
             "hosts" => array($secrets->url . ":80"),
