@@ -4,65 +4,39 @@ namespace ElasticPosts;
 
 class Admin
 {
-    protected $wordpress;
+  public function __construct()
+  {
+    add_action("admin_menu", function () {
 
-    protected $menuPage;
-    protected $postTypesSection;
+      add_submenu_page(
+        "options-general.php",
+        "Elastic Posts Options",
+        "Elastic Posts",
+        "activate_plugins",
+        "elastic-posts",
+        function () {
 
-    public function __construct()
-    {
-        $this->wordpress = isset($args["wordpress"]) ? $args["wordpress"] : new \WPUtilities\WordPressWrapper();
-        $this->createMenuPage();
-    }
+          $content = '<p>Please reindex <em>only</em> if you know what you\'re doing.';
+          $content .= '<form method="post" action="' . admin_url("admin-post.php") . '">';
+          $content .= '<input type="hidden" name="action" value="wp_elastic_posts_reindex">';
+          $content .= '<p class="submit"><input type="submit" name="submit" id="submit" class="button button-primary" value="Reindex" /></p>';
+          $content .= '</form>';
 
-    protected function createMenuPage()
-    {
-        $extra = '<form method="post" action="' . $this->wordpress->admin_url("admin-post.php") . '">';
-        $extra .= '<input type="hidden" name="action" value="wp_elastic_posts_reindex">';
-        $extra .= '<p class="submit"><input type="submit" name="submit" id="submit" class="button button-primary" value="Reindex" /></p>';
-        $extra .= '</form>';
+          ?>
 
-        $this->menuPage = new \WPUtilities\Admin\Settings\SubMenuPage(
-            "options-general.php",
-            "Elastic Posts Options",
-            "Elastic Posts",
-            "activate_plugins",
-            "elastic-posts",
-            $extra
-        );
+          <div class="wrap">
 
-        $this->createSettingsSection();
-    }
+    	        <?php screen_icon(); ?>
+    	        <h2>Elastic Posts Options</h2>
+    	        <?php echo $content; ?>
 
-    protected function createSettingsSection()
-    {
-        $fields = array(
-            "post_types" => array(
-                "type" => "checkbox_group",
-                "label" => "Post types to import",
-                "options" => $this->getPostTypeFields()
-            )
-        );
+    	    </div>
 
-        $this->postTypesSection = new \WPUtilities\Admin\Settings\Section(
-            $this->menuPage,
-            "settings",
-            "Settings",
-            $fields
-        );
-    }
-
-    protected function getPostTypeFields()
-    {
-        $posttypes = $this->wordpress->get_post_types(array("show_in_menu" => "content"), "objects");
-
-        $fields = array();
-
-        foreach($posttypes as $posttype) {
-            $fields[$posttype->name] = $posttype->label;
+          <?php
         }
+      );
 
-        return $fields;
-    }
+    });
+  }
 
 }

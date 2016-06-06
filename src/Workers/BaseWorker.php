@@ -50,19 +50,34 @@ abstract class BaseWorker
 
     protected $index = "jhu";
 
-    public function __construct($settings = array(), $injection = array())
+    /**
+     * Post types to sync to elasticsearch
+     * @var array
+     */
+    protected $post_types = array(
+      "club",
+      "division",
+      "fact",
+      "field_of_study",
+      "milestone",
+      "people",
+      "quote",
+      "search_response"
+    );
+
+    public function __construct($settings = array())
     {
         $this->worker = $settings["worker"];
         $this->logger = $settings["logger"];
 
-        $this->wordpress = isset($injection["wordpress"]) ? $injection["wordpress"] : new \WPUtilities\WordPressWrapper();
-        $this->wordpress_query = isset($injection["wordpress_query"]) ? $injection["wordpress_query"] : new \WPUtilities\WPQueryWrapper();
+        $this->wordpress = new \WPUtilities\WordPressWrapper();
+        $this->wordpress_query = new \WPUtilities\WPQueryWrapper();
         $this->api = new \WPUtilities\API(array(), true);
-        $this->post_util = isset($injection["post_util"]) ? $injection["post_util"] : new \WPUtilities\Post();
+        $this->post_util = new \WPUtilities\Post();
 
-        $this->setupVars();
+        $this->apiBase = \WPUtilities\API::getApiBase();
 
-        $this->elasticsearchClient = isset($injection["elasticsearch"]) ? $injection["elasticsearch"] : new \Elasticsearch\Client($this->getElasticsearchConfig());
+        $this->elasticsearchClient = new \Elasticsearch\Client($this->getElasticsearchConfig());
 
         $this->addFunctions();
     }
@@ -70,19 +85,6 @@ abstract class BaseWorker
     protected function getDate()
     {
         return date("Y-m-d H:i:s");
-    }
-
-    protected function setupVars()
-    {
-        $this->post_types = array_keys($this->wordpress->get_option("elastic-posts_settings_post_types"));
-        $this->apiBase = \WPUtilities\API::getApiBase();
-
-        if (!$this->post_types) {
-            $this->logger->addWarning("Elastic Posts plugin :: There are no post types selected to import into elasticsearch.");
-            return false;
-        }
-
-        return true;
     }
 
     /**
