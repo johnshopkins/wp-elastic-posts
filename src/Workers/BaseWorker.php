@@ -60,7 +60,7 @@ abstract class BaseWorker
       "fact",
       "field_of_study",
       "milestone",
-      "people",
+      "person",
       "quote",
       "search_response"
     );
