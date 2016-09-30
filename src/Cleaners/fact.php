@@ -8,7 +8,7 @@ class fact extends Base
   {
     // for cleaning of subobjects -- can be just an API URL
     if (!is_object($post)) return $post;
-    
+
     $post = parent::clean($post);
     $post = $this->assignDescription($post, "fact_description");
     $post = $this->assignSummary($post, null);
@@ -16,8 +16,11 @@ class fact extends Base
 
     // clean icon image
     $attachmentCleaner = new attachment();
-    $post->icon = $attachmentCleaner->clean($post->icon);
 
+    if (isset($post->icon)) {
+      $post->icon = $attachmentCleaner->clean($post->icon);
+    }
+    
     return $post;
   }
 }
