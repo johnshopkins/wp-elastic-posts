@@ -2,17 +2,17 @@
 
 namespace ElasticPosts\Cleaners;
 
-class searchresponse extends Base
+class searchresponse
 {
   public function clean($post)
   {
-    // for cleaning of subobjects -- can be just an API URL
-    if (!is_object($post)) return $post;
-    
-    $post = parent::clean($post);
-    $post = $this->assignDescription($post, "response");
-    $post = $this->removeUselessWpStuff($post);
+    $cleaned = new \StdClass();
 
-    return $post;
+    $cleaned->id = $post->ID;
+    $cleaned->post_title = $post->post_title;
+    $cleaned->description = $post->meta["response"];
+    $cleaned->tags = $post->meta["keywords"];
+
+    return $cleaned;
   }
 }

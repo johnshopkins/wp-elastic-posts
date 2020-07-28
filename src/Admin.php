@@ -9,7 +9,7 @@ class Admin
     add_action("admin_menu", function () {
 
       add_submenu_page(
-        "options-general.php",
+        "tools.php",
         "Elastic Posts Options",
         "Elastic Posts",
         "activate_plugins",
@@ -26,7 +26,6 @@ class Admin
 
           <div class="wrap">
 
-    	        <?php screen_icon(); ?>
     	        <h2>Elastic Posts Options</h2>
     	        <?php echo $content; ?>
 
@@ -38,5 +37,4 @@ class Admin
 
     });
   }
-
 }

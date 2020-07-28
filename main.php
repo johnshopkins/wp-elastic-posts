@@ -8,59 +8,64 @@ Version: 0.1
 
 class ElasticPosts
 {
-	protected $director;
+  protected $director;
 
-	public function __construct()
+  public function __construct($logger)
 	{
-		// do not run this plugin on local or staging
-		if (defined("ENV") && (ENV == "local" || ENV == "staging")) return;
+    $this->logger = $logger;
+    $this->setDirector();
 
-		
-		$this->setDirector();
+    // Create admin pages
+    add_action("wp_loaded", function () { new \ElasticPosts\Admin(); });
 
-		// Create admin pages
-		add_action("wp_loaded", function () {
-			new \ElasticPosts\Admin();
-		});
+    // posts
+    add_action("save_post", function ($id) {
+      $this->director->saved($id, get_post_type($id));
+    });
 
-		// posts
-		add_action("save_post", array($this->director, "post_saved"));
-
-		// if trash is turned off, add a hook to take care of deleted
-    // posts. Otherwise, deleted posts are treated with save_post
-    // as a status change
+    // if trash is turned off, add a hook to take care of deleted posts.
+    // Otherwise, deleted posts are treated with save_post as a status change
     if (defined("EMPTY_TRASH_DAYS") && EMPTY_TRASH_DAYS == 0) {
-        add_action("deleted_post", array($this->director, "remove"));
+
+      add_action("deleted_post", function ($ids) {
+        $ids = !is_null($ids) ? (array) $ids : (array) $_GET["post"];
+        foreach ($ids as $id) {
+          $this->director->remove($id, get_post_type($id));
+        }
+      });
     }
 
-		// attachments
-		add_action("add_attachment", array($this->director, "put"));
-		add_action("edit_attachment", array($this->director, "put"));
-		// add_action("delete_attachment", array($this->director, "remove"));
-
-		// reindex button in admin
-		add_action("admin_post_wp_elastic_posts_reindex", array($this, "reindex"));
+    // reindex button in admin
+    add_action("admin_post_wp_elastic_posts_reindex", function () {
+      $this->director->reindex();
+      $redirect = admin_url("tools.php?page=elastic-posts");
+      header("Location: {$redirect}");
+    });
 	}
 
-	protected function setDirector()
-	{
-		$root = dirname(dirname(dirname(dirname(__DIR__))));
+  protected function setDirector()
+  {
+    $options = array(
+      "logger" => $this->logger,
+      "namespace" => "jhu",
+      "saveTest" => function ($id) {
+        // function to run in order to determine if a post should be saved
+        $post = get_post($id);
+        return $post->post_status == "publish";
+      },
+      "getAllOfType" => function ($type) {
+        $query = new \WP_Query(array(
+          "post_type" => $type,
+          "post_status" => "publish",
+          "posts_per_page" => -1,
+          "fields" => "ids"
+        ));
+        return $query->posts;
+      },
+      "servers" => Secrets\Secret::get("jhu", ENV, "servers"),
+      "types" => array("field_of_study", "search_response")
+    );
 
-		$options = array(
-			"settingsDirectory" => $root . "/config/elasticsearch/jhuedu"
-		);
-
-		$this->director = new \ElasticPosts\Director($options);
-
-	}
-
-	public function reindex()
-	{
-		$this->director->reindex();
-
-		$redirect = admin_url("options-general.php?page=elastic-posts");
-		header("Location: {$redirect}");
-	}
+    $this->director = new \GearmanWorkers\Elasticsearch\Director($options);
+  }
 }
-
-new ElasticPosts();

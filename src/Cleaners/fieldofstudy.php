@@ -2,30 +2,37 @@
 
 namespace ElasticPosts\Cleaners;
 
-class fieldofstudy extends Base
+class fieldofstudy
 {
   public function clean($post)
   {
-    // for cleaning of subobjects -- can be just an API URL
-    if (!is_object($post)) return $post;
+    $cleaned = new \StdClass();
 
-    $post = parent::clean($post);
-    $post = $this->assignDescription($post);
-    $post = $this->assignSummary($post);
-    $post = $this->removeUselessWpStuff($post);
+    $cleaned->id = $post->ID;
+    $cleaned->post_title = $post->post_title;
+    $cleaned->tags = [];
 
-    // clean division
-    $divisonCleaner = new division();
-    foreach ($post->division as &$division) {
-      $division = $divisonCleaner->clean($division);
+    // add degree type to tags
+    foreach ($post->filtering['programlevel'] as $degree) {
+      $cleaned->tags[] = $degree->name;
     }
 
-    foreach ($post->degrees as &$degree) {
-      if (!$degree->parent) {
-        unset($degree->parent);
+    // add online (if present) to tags
+    foreach ($post->filtering['format'] as $format) {
+      if ($format->slug === 'online') {
+        $cleaned->tags[] = $format->name;
       }
     }
 
-    return $post;
+    foreach ($post->meta["keywords"] as $keyword) {
+      $cleaned->tags[] = $keyword;
+    }
+
+    $cleaned->description = $post->meta["description"];
+    $cleaned->summary = $post->meta["summary"];
+    $cleaned->concentrations = $post->meta["concentrations"];
+    $cleaned->what_you_can_do = $post->meta["what_you_can_do"];
+
+    return $cleaned;
   }
 }
